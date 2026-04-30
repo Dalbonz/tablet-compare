@@ -242,12 +242,30 @@ async function getSpecs(manufacturer, model) {
 }
 
 function parseDeviceSpecs(html, specs) {
+  // ── 테이블 행 파싱 헬퍼 ──────────────────────────────────────
+  const tdGet = (key) => {
+    const re = new RegExp(`<td[^>]*>${key}(?:<p>[^<]*</p>)?</td>\\s*<td[^>]*>([\\s\\S]*?)</td>`, 'i')
+    const m = html.match(re)
+    return m ? m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : null
+  }
+  const tdGetAll = (key) => {
+    const re = new RegExp(`<td[^>]*>${key}(?:<p>[^<]*</p>)?</td>\\s*<td[^>]*>([\\s\\S]*?)</td>`, 'gi')
+    return [...html.matchAll(re)].map(m => m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim())
+  }
+
+  // ── b태그 파싱 헬퍼 (상단 요약 박스) ────────────────────────
+  const bGet = (key) => {
+    const re = new RegExp(`<b>${key}<\\/b>:\\s*([^<]+)`, 'i')
+    const m = html.match(re)
+    return m ? m[1].trim() : null
+  }
+
+  // ── meta 설명 파싱 ───────────────────────────────────────────
   const metaMatch = html.match(/name="description"\s+content="([^"]+)"/i)
     || html.match(/content="([^"]+)"\s+name="description"/i)
 
   if (metaMatch) {
     const desc = metaMatch[1]
-
     const get = (key) => {
       const re = new RegExp(`${key}:\\s*([^,]+(?:mm|g|mAh|in)[^,]*)`, 'i')
       const m = desc.match(re)
@@ -256,7 +274,6 @@ function parseDeviceSpecs(html, specs) {
       const m2 = desc.match(re2)
       return m2 ? m2[1].trim() : null
     }
-
     specs.dimensions = get('Dimensions')
     specs.weight     = get('Weight')
     specs.chipset    = get('SoC')
@@ -265,97 +282,130 @@ function parseDeviceSpecs(html, specs) {
     specs.storage    = get('Storage')
     specs.battery    = get('Battery')
 
-    // RAM - GB 단위만 추출 (MHz 제외)
-    const ramMatch = desc.match(/RAM:\s*(\d+)\s*GB/i)
-    if (ramMatch) specs.ram = ramMatch[1] + ' GB'
-
-    // 디스플레이
     const dispMatch = desc.match(/Display:\s*([\d.]+\s*in),\s*([^,]+),\s*([\d]+\s*x\s*[\d]+\s*pixels)/i)
     if (dispMatch) {
       specs.displaySize = dispMatch[1]
       specs.displayType = dispMatch[2].trim()
       specs.resolution  = dispMatch[3].trim()
     }
-
-    // OS
     const osMatch = desc.match(/OS:\s*([^\.\"]+)/i)
     if (osMatch) specs.os = osMatch[1].trim()
+  }
 
-    // 카메라 (meta에서) → MP 변환
-    const camMatch = desc.match(/Camera:\s*([\d]+\s*x\s*[\d]+)\s*pixels/i)
-    if (camMatch) {
-      const parts = camMatch[1].split('x').map(s => parseInt(s.trim()))
-      specs.rearCamera = pixelsToMP(parts[0], parts[1])
+  // ── RAM: 테이블 우선, 없으면 meta GB 파싱 ───────────────────
+  const ramCapRow = tdGet('RAM capacity')
+  if (ramCapRow) {
+    const gbM = ramCapRow.match(/(\d+)\s*GB/i)
+    if (gbM) specs.ram = gbM[1] + ' GB'
+  }
+  if (!specs.ram && metaMatch) {
+    const gbM = metaMatch[1].match(/RAM:\s*(\d+)\s*GB/i)
+    if (gbM) specs.ram = gbM[1] + ' GB'
+  }
+
+  // ── 카메라: 테이블의 Image resolution 행 순서대로 후면/전면 ─
+  const imgResRows = tdGetAll('Image resolution')
+  if (imgResRows[0]) {
+    const m = imgResRows[0].match(/([\d.]+)\s*MP/i)
+    if (m) specs.rearCamera = Math.round(parseFloat(m[1])) + 'MP'
+  }
+  if (imgResRows[1]) {
+    const m = imgResRows[1].match(/([\d.]+)\s*MP/i)
+    if (m) specs.frontCamera = Math.round(parseFloat(m[1])) + 'MP'
+  }
+  // 테이블에 없으면 b태그 fallback
+  if (!specs.rearCamera) {
+    const camRaw = bGet('Camera')
+    if (camRaw) {
+      const rearM = camRaw.match(/(\d+)\s*x\s*(\d+)\s*pixels/i)
+      if (rearM) specs.rearCamera = pixelsToMP(parseInt(rearM[1]), parseInt(rearM[2]))
     }
   }
 
-  // b태그 파싱
-  const bGet = (key) => {
-    const re = new RegExp(`<b>${key}<\\/b>:\\s*([^<]+)`, 'i')
-    const m = html.match(re)
-    return m ? m[1].trim() : null
-  }
-
-  specs.wlan      = bGet('Wi-Fi')
+  // ── 통신 ─────────────────────────────────────────────────────
+  specs.wlan = bGet('Wi-Fi')
   const bt = bGet('Bluetooth')
   if (bt) specs.bluetooth = 'Bluetooth ' + bt
-  specs.usb       = bGet('USB')
-  specs.gps       = bGet('Positioning') || bGet('GPS')
-  specs.sim       = bGet('SIM card')
+  specs.usb  = bGet('USB')
+  specs.gps  = bGet('Positioning') || bGet('GPS')
+  specs.sim  = bGet('SIM card')
 
-  // 카메라 - b태그에서 더 자세히
-  const camRaw = bGet('Camera')
-  if (camRaw) {
-    // "4032 x 3024 pixels, 3840 x 2160 pixels, 30 fps" 패턴
-    const camParts = camRaw.split(',')
-    const rearMatch = camParts[0]?.match(/(\d+)\s*x\s*(\d+)\s*pixels/i)
-    if (rearMatch) specs.rearCamera = pixelsToMP(parseInt(rearMatch[1]), parseInt(rearMatch[2]))
-  }
-
-  // 전면 카메라 - 두 번째 해상도 값은 영상이므로 제외
-  // devicespecifications에 전면 카메라 별도 태그 없음 → 생략
-
-  // 주사율 - displayType에서만
+  // ── 주사율: "60 Hz - 120 Hz refresh rate" 패턴 처리 ─────────
   if (specs.displayType) {
-    const hzMatch = specs.displayType.match(/(\d+)\s*Hz/i)
-    if (hzMatch && parseInt(hzMatch[1]) > 30) specs.refreshRate = hzMatch[1] + ' Hz'
+    const hzM = specs.displayType.match(/(\d+)\s*Hz/i)
+    if (hzM && parseInt(hzM[1]) > 30) specs.refreshRate = hzM[1] + ' Hz'
   }
   if (!specs.refreshRate) {
-    const hzMatch = html.match(/(\d+)Hz\s*refresh/i) || html.match(/refresh[^<]{0,20}(\d+)Hz/i)
-    if (hzMatch && parseInt(hzMatch[1]) > 30) specs.refreshRate = hzMatch[1] + ' Hz'
+    const hzText = html.match(/[\d\s\-Hz]+refresh rate/i)?.[0] || ''
+    const allHz = [...hzText.matchAll(/(\d+)\s*Hz/gi)].map(m => parseInt(m[1])).filter(h => h > 30)
+    if (allHz.length) {
+      specs.refreshRate = Math.max(...allHz) + ' Hz'
+    } else {
+      const hzM = html.match(/(\d+)\s*Hz\s*refresh/i) || html.match(/refresh[^<]{0,20}(\d+)\s*Hz/i)
+      if (hzM && parseInt(hzM[1]) > 30) specs.refreshRate = hzM[1] + ' Hz'
+    }
   }
 
-  // 밝기
-  const nitsMatch = html.match(/([\d,]+)\s*nits/i)
-  if (nitsMatch) specs.brightness = nitsMatch[1].replace(',','') + ' nits'
+  // ── 충전: Charger output power V×A → W ───────────────────────
+  const chargerRow = tdGet('Charger output power')
+  if (chargerRow) {
+    const vM = chargerRow.match(/([\d.]+)\s*V/)
+    const aM = chargerRow.match(/([\d.]+)\s*A/)
+    if (vM && aM) {
+      const watts = Math.round(parseFloat(vM[1]) * parseFloat(aM[1]))
+      if (watts > 5) specs.charging = watts + 'W'
+    }
+  }
+  if (!specs.charging) {
+    const wM = html.match(/(\d+)W\s*(?:fast\s*)?charg/i) || html.match(/charg[^<]{0,30}(\d+)\s*W/i)
+    if (wM) specs.charging = wM[1] + 'W'
+  }
 
-  // 충전
-  const wattMatch = html.match(/(\d+)W\s*(?:fast\s*)?charg/i)
-    || html.match(/charg[^<]{0,30}(\d+)\s*W/i)
-  if (wattMatch) specs.charging = wattMatch[1] + 'W'
+  // ── PPI ──────────────────────────────────────────────────────
+  const ppiRow = tdGet('Pixel density')
+  if (ppiRow) {
+    const ppiM = ppiRow.match(/(\d+)\s*ppi/i)
+    if (ppiM) specs.ppi = ppiM[1] + ' ppi'
+  }
+  if (!specs.ppi) {
+    const ppiM = html.match(/(\d+)\s*ppi/i)
+    if (ppiM) specs.ppi = ppiM[1] + ' ppi'
+  }
 
-  // PPI
-  const ppiMatch = html.match(/([\d]+)\s*ppi/i)
-  if (ppiMatch) specs.ppi = ppiMatch[1] + ' ppi'
+  // ── 밝기 ─────────────────────────────────────────────────────
+  const nitsM = html.match(/([\d,]+)\s*nits/i)
+  if (nitsM) specs.brightness = nitsM[1].replace(',', '') + ' nits'
 
-  // 가격
-  const priceMatch = html.match(/\$[\d,]+/)
-  if (priceMatch) specs.price = priceMatch[0]
+  // ── NFC ──────────────────────────────────────────────────────
+  const connRow = tdGet('Connectivity')
+  const addRow  = tdGet('Additional features')
+  specs.nfc = (
+    (connRow && /\bNFC\b/i.test(connRow)) ||
+    (addRow  && /\bNFC\b/i.test(addRow))  ||
+    html.match(/<b>NFC<\/b>/i)
+  ) ? '있음' : '없음'
 
-  // NFC
-  specs.nfc = html.match(/<b>NFC<\/b>/i) ? '있음' : '없음'
+  // ── 3.5mm 잭 ─────────────────────────────────────────────────
+  const jackRow = tdGet('Headphone jack')
+  if (jackRow) {
+    specs.headphone = /no/i.test(jackRow) ? '없음' : '있음'
+  } else {
+    specs.headphone = html.match(/3\.5\s*mm\s*(?:jack|headphone|audio)/i) ? '있음' : '없음'
+  }
 
-  // 3.5mm - 명확한 패턴만
-  specs.headphone = html.match(/3\.5\s*mm\s*(?:jack|headphone|audio)/i) ? '있음' : '없음'
+  // ── 스피커 ───────────────────────────────────────────────────
+  const speakerRow = tdGet('Speaker')
+  const speakerSrc = speakerRow || ''
+  if (/4\s*speakers|quad\s*speaker/i.test(speakerSrc) || html.match(/4\s*speakers|quad\s*speaker/i))
+    specs.speakers = '4채널'
+  else if (/[Ss]tereo\s*speakers?/i.test(speakerSrc) || html.match(/[Ss]tereo\s*speakers?/i))
+    specs.speakers = '스테레오'
+  else if (/[Ss]ingle\s*speaker/i.test(speakerSrc) || html.match(/[Ss]ingle\s*speaker/i))
+    specs.speakers = '모노'
 
-  // 스피커
-  if (html.match(/4\s*speakers|quad\s*speaker/i)) specs.speakers = '4채널'
-  else if (html.match(/[Ss]tereo\s*speakers/i)) specs.speakers = '스테레오'
-  else if (html.match(/[Ss]ingle\s*speaker/i)) specs.speakers = '모노'
-
-  // 센서
-  const sensorMatch = bGet('Sensors')
-  if (sensorMatch) specs.sensors = sensorMatch
+  // ── 센서 ─────────────────────────────────────────────────────
+  const sensorsRow = tdGet('Sensors')
+  if (sensorsRow) specs.sensors = sensorsRow
 }
 
 async function fetchHtml(url) {

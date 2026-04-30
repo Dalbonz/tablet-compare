@@ -1,8 +1,6 @@
 const ALL_CATEGORIES = [
   { name: '기본 정보', color: '#6b7280', specs: [
     { key: '_image', label: '이미지', isImage: true },
-    { key: 'releaseDate', label: '출시일' },
-    { key: 'price', label: '출시 가격 (Wi-Fi, 기본)' },
   ]},
   { name: '바디', color: '#8b5cf6', specs: [
     { key: 'dimensions', label: 'Dimensions' },
