@@ -185,6 +185,8 @@ body {
 .compare-table thead th.col-comparison { color: var(--blue); font-size: 14px; font-weight: 800; }
 
 .col-header-product { display: flex; align-items: center; gap: 6px; }
+.col-header-product > div { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.manufacturer-label { font-size: 10px; font-weight: 600; color: var(--gray-500); letter-spacing: 0.02em; }
 .reference-tag { font-size: 9px; background: var(--blue); color: white; padding: 1px 5px; border-radius: 3px; font-weight: 600; }
 
 .category-group-cell {

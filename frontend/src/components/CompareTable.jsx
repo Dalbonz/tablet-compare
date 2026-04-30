@@ -107,7 +107,10 @@ export default function CompareTable({ products, settings }) {
             <th>항목</th>
             <th className="col-product" style={{ textAlign: 'center' }}>
               <div className="col-header-product" style={{ justifyContent: 'center' }}>
-                {ref?.model || '-'}
+                <div>
+                  {ref?.manufacturer && <span className="manufacturer-label">{ref.manufacturer}</span>}
+                  <span>{ref?.model || '-'}</span>
+                </div>
                 <span className="reference-tag">기준</span>
               </div>
             </th>
@@ -115,7 +118,10 @@ export default function CompareTable({ products, settings }) {
               <>
                 <th key={`cmp-h-${p.id}`} className="col-comparison">vs</th>
                 <th key={`prod-h-${p.id}`} className="col-product" style={{ textAlign: 'center' }}>
-                  <div className="col-header-product" style={{ justifyContent: 'center' }}>{p.model || '-'}</div>
+                  <div className="col-header-product" style={{ justifyContent: 'center' }}>
+                    {p.manufacturer && <span className="manufacturer-label">{p.manufacturer}</span>}
+                    <span>{p.model || '-'}</span>
+                  </div>
                 </th>
               </>
             ))}
@@ -150,7 +156,7 @@ export default function CompareTable({ products, settings }) {
                   </td>
                   {compareProducts.map((p) => (
                     <>
-                      <td key={`cmp-${p.id}-${spec.key}`} className="comparison-cell" />
+                      <ComparisonCell key={`cmp-${p.id}-${spec.key}`} refProduct={ref} compareProduct={p} spec={spec} thresholds={settings?.thresholds} />
                       <td key={`val-${p.id}-${spec.key}`} className={spec.isImage ? 'spec-value-cell image-cell' : 'spec-value-cell'}>
                         {p.loading ? <span style={{ color: '#d1d5db' }}>로딩 중...</span> : spec.isImage ? (
                           p.imageUrl

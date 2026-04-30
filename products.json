@@ -7,23 +7,22 @@
     { "name": "iPad Air 13 (2025)", "dsId": "c5e362c3" },
     { "name": "iPad Air 11 (2025)", "dsId": "0c7062c1" },
     { "name": "iPad (2025)",        "dsId": "94b362c6" },
-    { "name": "iPad mini (2024)",   "dsId": "apple-ipad-mini-2024" },
-    { "name": "iPad Pro 13 (2024)", "dsId": "apple-ipad-pro-13-2024" },
+    { "name": "iPad mini (2024)",   "dsId": "267461c1" },
+    { "name": "iPad Pro 13 (2024)", "dsId": "63a15fdc" },
     { "name": "iPad Pro 11 (2024)", "dsId": "4fc55fda" },
     { "name": "iPad Air 13 (2024)", "dsId": "dab35fe1" },
     { "name": "iPad Air 11 (2024)", "dsId": "54865fdf" },
-    { "name": "iPad Pro 12.9 (2022)", "dsId": "apple-ipad-pro-12-9-2022" },
-    { "name": "iPad Pro 11 (2022)", "dsId": "apple-ipad-pro-11-2022" },
-    { "name": "iPad (2022)",        "dsId": "apple-ipad-2022" },
-    { "name": "iPad Air (2022)",    "dsId": "apple-ipad-air-2022" },
-    { "name": "iPad mini (2021)",   "dsId": "apple-ipad-mini-2021" }
+    { "name": "iPad Pro 12.9 (2022)", "dsId": "bbab5ae2" },
+    { "name": "iPad Pro 11 (2022)", "dsId": "c7075ae0" },
+    { "name": "iPad (2022)",        "dsId": "e70a5ade" },
+    { "name": "iPad Air (2022)",    "dsId": "706458ec" },
+    { "name": "iPad mini (2021)",   "dsId": "5906574f" }
   ],
   "Samsung": [
     { "name": "Galaxy Tab S11 Ultra", "dsId": "540864a1" },
     { "name": "Galaxy Tab S11",       "dsId": "d23d649f" },
     { "name": "Galaxy Tab S10 Ultra", "dsId": "577e613d" },
     { "name": "Galaxy Tab S10+",      "dsId": "89d0613e" },
-    { "name": "Galaxy Tab S10",       "dsId": "samsung-galaxy-tab-s10" },
     { "name": "Galaxy Tab S10 FE",    "dsId": "ee8362ea" },
     { "name": "Galaxy Tab S9 Ultra",  "dsId": "e5835d57" },
     { "name": "Galaxy Tab S9+",       "dsId": "8cd35d55" },
@@ -31,49 +30,49 @@
     { "name": "Galaxy Tab S9 FE",     "dsId": "b0925df5" },
     { "name": "Galaxy Tab A9+",       "dsId": "7c7d5e01" },
     { "name": "Galaxy Tab A9",        "dsId": "7c385dff" },
-    { "name": "Galaxy Tab S8 Ultra",  "dsId": "samsung-galaxy-tab-s8-ultra" },
+    { "name": "Galaxy Tab S8 Ultra",  "dsId": "0a455896" },
     { "name": "Galaxy Tab S8+",       "dsId": "b4cc5895" },
-    { "name": "Galaxy Tab S8",        "dsId": "samsung-galaxy-tab-s8" }
+    { "name": "Galaxy Tab S8",        "dsId": "3a7c5893" }
   ],
   "Xiaomi": [
-    { "name": "Xiaomi Pad 7 Pro",       "dsId": "182061e1" },
-    { "name": "Xiaomi Pad 7",           "dsId": "756361e0" },
-    { "name": "Xiaomi Pad 6 Pro",       "dsId": "28b85c73" },
-    { "name": "Xiaomi Pad 6",           "dsId": "b0bf5c72" },
-    { "name": "Xiaomi Pad 5 Pro",       "dsId": "xiaomi-pad-5-pro" },
-    { "name": "Xiaomi Pad 5",           "dsId": "xiaomi-pad-5" },
-    { "name": "Redmi Pad Pro",          "dsId": "xiaomi-redmi-pad-pro" },
-    { "name": "Redmi Pad SE",           "dsId": "9be45d96" },
-    { "name": "Redmi Pad 2",            "dsId": "xiaomi-redmi-pad-2" }
+    { "name": "Xiaomi Pad 7 Pro",  "dsId": "182061e1" },
+    { "name": "Xiaomi Pad 7",      "dsId": "756361e0" },
+    { "name": "Xiaomi Pad 6 Pro",  "dsId": "28b85c73" },
+    { "name": "Xiaomi Pad 6",      "dsId": "b0bf5c72" },
+    { "name": "Xiaomi Pad 5 Pro",  "dsId": "791a5700" },
+    { "name": "Xiaomi Pad 5",      "dsId": "324656fe" },
+    { "name": "Redmi Pad Pro",     "dsId": "e1795fa8" },
+    { "name": "Redmi Pad SE",      "dsId": "9be45d96" },
+    { "name": "Redmi Pad 2",       "dsId": "09ec63cc" }
   ],
   "Lenovo": [
-    { "name": "Tab Extreme",        "dsId": "lenovo-tab-extreme" },
-    { "name": "Tab P12 Pro",        "dsId": "lenovo-tab-p12-pro" },
-    { "name": "Tab P12",            "dsId": "lenovo-tab-p12" },
-    { "name": "Tab P11 Pro Gen 2",  "dsId": "lenovo-tab-p11-pro-gen-2" },
-    { "name": "Tab P11 Gen 2",      "dsId": "lenovo-tab-p11-gen-2" },
-    { "name": "Tab M11",            "dsId": "lenovo-tab-m11" },
-    { "name": "Tab M10 Plus Gen 3", "dsId": "lenovo-tab-m10-plus-gen-3" }
+    { "name": "Tab Extreme",        "dsId": "6d015b88" },
+    { "name": "Tab P12 Pro",        "dsId": "e6a1579e" },
+    { "name": "Tab P12",            "dsId": "86725d62" },
+    { "name": "Tab P11 Pro Gen 2",  "dsId": "b74d5a5f" },
+    { "name": "Tab P11 Gen 2",      "dsId": "30d95a5e" },
+    { "name": "Tab M11",            "dsId": "7afa5eee" },
+    { "name": "Tab M10 Plus Gen 3", "dsId": "7bdf5ab3" }
   ],
   "Huawei": [
-    { "name": "MatePad Pro 13.2",      "dsId": "huawei-matepad-pro-13-2" },
-    { "name": "MatePad Pro 11 (2024)", "dsId": "huawei-matepad-pro-11-2024" },
-    { "name": "MatePad 11.5 S",        "dsId": "huawei-matepad-11-5-s" },
-    { "name": "MatePad Air",           "dsId": "huawei-matepad-air" },
-    { "name": "MatePad 11 (2023)",     "dsId": "huawei-matepad-11-2023" }
+    { "name": "MatePad Pro 13.2",      "dsId": "4a695de4" },
+    { "name": "MatePad Pro 11 (2024)", "dsId": "13315e81" },
+    { "name": "MatePad 11.5 S",        "dsId": "bccc65f0" },
+    { "name": "MatePad Air",           "dsId": "2d965cc6" },
+    { "name": "MatePad 11 (2023)",     "dsId": "41f05c3c" }
   ],
   "Microsoft": [
-    { "name": "Surface Pro 11", "dsId": "microsoft-surface-pro-11" },
-    { "name": "Surface Pro 10", "dsId": "microsoft-surface-pro-10" },
-    { "name": "Surface Pro 9",  "dsId": "microsoft-surface-pro-9" },
-    { "name": "Surface Go 4",   "dsId": "microsoft-surface-go-4" }
+    { "name": "Surface Pro 11", "dsId": "" },
+    { "name": "Surface Pro 10", "dsId": "" },
+    { "name": "Surface Pro 9",  "dsId": "" },
+    { "name": "Surface Go 4",   "dsId": "" }
   ],
-  "Google":  [{ "name": "Pixel Tablet (2023)", "dsId": "google-pixel-tablet-2023" }],
-  "ASUS":    [{ "name": "ROG Flow Z13 (2024)", "dsId": "asus-rog-flow-z13-2024" }],
+  "Google":  [{ "name": "Pixel Tablet (2023)", "dsId": "5adf5ca4" }],
+  "ASUS":    [{ "name": "ROG Flow Z13 (2024)", "dsId": "" }],
   "OnePlus": [
-    { "name": "OnePlus Pad 2",  "dsId": "oneplus-pad-2" },
-    { "name": "OnePlus Pad Go", "dsId": "oneplus-pad-go" },
-    { "name": "OnePlus Pad",    "dsId": "oneplus-pad" }
+    { "name": "OnePlus Pad 2",  "dsId": "1f3c60c2" },
+    { "name": "OnePlus Pad Go", "dsId": "33c25dfd" },
+    { "name": "OnePlus Pad",    "dsId": "c80a5bd7" }
   ],
-  "Sony": [{ "name": "Xperia Z4 Tablet", "dsId": "sony-xperia-z4-tablet" }]
+  "Sony": [{ "name": "Xperia Z4 Tablet", "dsId": "3f0036f3" }]
 }
