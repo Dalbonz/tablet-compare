@@ -19,6 +19,7 @@ const CHIP_DB = {
   'Apple M1':         { single: 2370, multi: 8620,  npu: '11 TOPS' },
   'Apple A17 Pro':    { single: 2900, multi: 7200,  npu: '35 TOPS' },
   'Apple A16 Bionic': { single: 2520, multi: 6360,  npu: '17 TOPS' },
+  'Apple A16':        { single: 2520, multi: 6360,  npu: '17 TOPS' },
   'Apple A15 Bionic': { single: 2370, multi: 5660,  npu: '15.8 TOPS' },
   'Apple A14 Bionic': { single: 1990, multi: 4900,  npu: '11 TOPS' },
   'Snapdragon 8 Elite':   { single: 2900, multi: 9200, npu: '45 TOPS' },
@@ -203,6 +204,7 @@ const APPLE_RAM_FALLBACK = {
   'Apple M1':          8,
   'Apple A17 Pro':     8,
   'Apple A16 Bionic':  4,
+  'Apple A16':         4,
   'Apple A15 Bionic':  4,
   'Apple A14 Bionic':  4,
 }
