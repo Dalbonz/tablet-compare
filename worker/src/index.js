@@ -1,8 +1,4 @@
-// Tablet Compare Worker v5
-// 스펙: devicespecifications.com
-// AP 성능: 칩셋 하드코딩 DB (Geekbench 6 평균)
-// 제품목록: GitHub Actions JSON → fallback DB
-
+// Tablet Compare Worker v5 - Fixed parsing
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
@@ -13,6 +9,7 @@ const CORS = {
 const CHIP_DB = {
   'Apple M4':         { single: 3864, multi: 15119, npu: '38 TOPS' },
   'Apple M4 Pro':     { single: 4020, multi: 23000, npu: '38 TOPS' },
+  'Apple M5':         { single: 4200, multi: 17000, npu: '50 TOPS' },
   'Apple M3':         { single: 3190, multi: 12640, npu: '18 TOPS' },
   'Apple M3 Pro':     { single: 3220, multi: 15000, npu: '18 TOPS' },
   'Apple M2':         { single: 2670, multi: 10600, npu: '15.8 TOPS' },
@@ -22,107 +19,72 @@ const CHIP_DB = {
   'Apple A16 Bionic': { single: 2520, multi: 6360,  npu: '17 TOPS' },
   'Apple A15 Bionic': { single: 2370, multi: 5660,  npu: '15.8 TOPS' },
   'Apple A14 Bionic': { single: 1990, multi: 4900,  npu: '11 TOPS' },
-  'Snapdragon 8 Elite':   { single: 2900, multi: 9200, npu: '45 TOPS' },
-  'Snapdragon 8 Gen 3':   { single: 2200, multi: 6900, npu: '45 TOPS' },
-  'Snapdragon 8 Gen 2':   { single: 1990, multi: 5500, npu: '26 TOPS' },
-  'Snapdragon 8cx Gen 3': { single: 1450, multi: 6800, npu: null },
-  'Dimensity 9400+':  { single: 2850, multi: 9100, npu: '35 TOPS' },
-  'Dimensity 9400':   { single: 2780, multi: 8800, npu: '35 TOPS' },
-  'Dimensity 9300+':  { single: 2100, multi: 7200, npu: '33 TOPS' },
-  'Dimensity 9300':   { single: 2050, multi: 6900, npu: '33 TOPS' },
-  'Dimensity 9200+':  { single: 1800, multi: 5600, npu: '22 TOPS' },
-  'Dimensity 9000':   { single: 1490, multi: 4900, npu: '4.7 TOPS' },
-  'Exynos 2400':      { single: 1900, multi: 7100, npu: '34.4 TOPS' },
-  'Exynos 2200':      { single: 1350, multi: 4200, npu: '22 TOPS' },
+  'Snapdragon 8 Elite':    { single: 2900, multi: 9200,  npu: '45 TOPS' },
+  'Snapdragon 8s Gen 3':   { single: 2100, multi: 6500,  npu: '45 TOPS' },
+  'Snapdragon 8 Gen 3':    { single: 2200, multi: 6900,  npu: '45 TOPS' },
+  'Snapdragon 8 Gen 2':    { single: 1990, multi: 5500,  npu: '26 TOPS' },
+  'Snapdragon 8 Gen 1':    { single: 1470, multi: 4800,  npu: '26 TOPS' },
+  'Snapdragon 8+ Gen 1':   { single: 1580, multi: 5000,  npu: '26 TOPS' },
+  'Snapdragon 870':        { single: 1120, multi: 3800,  npu: null },
+  'Snapdragon 7+ Gen 3':   { single: 1800, multi: 5200,  npu: null },
+  'Snapdragon 7s Gen 1':   { single: 1050, multi: 3200,  npu: null },
+  'Snapdragon 680':        { single: 620,  multi: 1800,  npu: null },
+  'Snapdragon 8cx Gen 3':  { single: 1450, multi: 6800,  npu: null },
+  'Dimensity 9400+':  { single: 2850, multi: 9100,  npu: '35 TOPS' },
+  'Dimensity 9400':   { single: 2780, multi: 8800,  npu: '35 TOPS' },
+  'Dimensity 9300+':  { single: 2100, multi: 7200,  npu: '33 TOPS' },
+  'Dimensity 9300':   { single: 2050, multi: 6900,  npu: '33 TOPS' },
+  'Dimensity 9200+':  { single: 1800, multi: 5600,  npu: '22 TOPS' },
+  'Dimensity 9000':   { single: 1490, multi: 4900,  npu: '4.7 TOPS' },
+  'Exynos 2400':      { single: 1900, multi: 7100,  npu: '34.4 TOPS' },
+  'Exynos 1380':      { single: 920,  multi: 3200,  npu: null },
+  'Exynos 2200':      { single: 1350, multi: 4200,  npu: '22 TOPS' },
   'Intel Core Ultra 5': { single: 2200, multi: 10500, npu: '34 TOPS' },
   'Intel Core Ultra 7': { single: 2400, multi: 12000, npu: '34 TOPS' },
-  'Kirin 9010':       { single: 1200, multi: 4800, npu: '20 TOPS' },
-  'Kirin 9000S':      { single: 1050, multi: 3900, npu: '10 TOPS' },
-}
-
-const FALLBACK_DB = {
-  'Apple': [
-    { name: 'iPad Air 13 (2026)', dsId: 'apple-ipad-air-13-wi-fi-2026' },
-    { name: 'iPad Air 11 (2026)', dsId: 'apple-ipad-air-11-wi-fi-2026' },
-    { name: 'iPad Pro 13 (2025)', dsId: 'apple-ipad-pro-13-wi-fi-2025' },
-    { name: 'iPad Pro 11 (2025)', dsId: 'apple-ipad-pro-11-wi-fi-2025' },
-    { name: 'iPad Air 13 (2025)', dsId: 'c5e362c3' },
-    { name: 'iPad Air 11 (2025)', dsId: 'apple-ipad-air-11-2025' },
-    { name: 'iPad (2025)',        dsId: 'apple-ipad-2025' },
-    { name: 'iPad mini (2024)',   dsId: 'apple-ipad-mini-2024' },
-    { name: 'iPad Pro 13 (2024)', dsId: 'apple-ipad-pro-13-2024' },
-    { name: 'iPad Pro 11 (2024)', dsId: 'apple-ipad-pro-11-2024' },
-    { name: 'iPad Air 13 (2024)', dsId: 'dab35fe1' },
-    { name: 'iPad Air 11 (2024)', dsId: 'apple-ipad-air-11-2024' },
-    { name: 'iPad Pro 12.9 (2022)', dsId: 'apple-ipad-pro-12-9-2022' },
-    { name: 'iPad Pro 11 (2022)', dsId: 'apple-ipad-pro-11-2022' },
-    { name: 'iPad (2022)',        dsId: 'apple-ipad-2022' },
-    { name: 'iPad Air (2022)',    dsId: 'apple-ipad-air-2022' },
-    { name: 'iPad mini (2021)',   dsId: 'apple-ipad-mini-2021' },
-  ],
-  'Samsung': [
-    { name: 'Galaxy Tab S11 Ultra', dsId: '540864a1' },
-    { name: 'Galaxy Tab S11',       dsId: 'samsung-galaxy-tab-s11' },
-    { name: 'Galaxy Tab S10 Ultra', dsId: 'samsung-galaxy-tab-s10-ultra' },
-    { name: 'Galaxy Tab S10+',      dsId: 'samsung-galaxy-tab-s10-plus' },
-    { name: 'Galaxy Tab S10',       dsId: 'samsung-galaxy-tab-s10' },
-    { name: 'Galaxy Tab S10 FE',    dsId: 'samsung-galaxy-tab-s10-fe' },
-    { name: 'Galaxy Tab S9 Ultra',  dsId: 'samsung-galaxy-tab-s9-ultra' },
-    { name: 'Galaxy Tab S9+',       dsId: 'samsung-galaxy-tab-s9-plus' },
-    { name: 'Galaxy Tab S9',        dsId: 'samsung-galaxy-tab-s9' },
-    { name: 'Galaxy Tab S9 FE',     dsId: 'samsung-galaxy-tab-s9-fe' },
-    { name: 'Galaxy Tab A9+',       dsId: 'samsung-galaxy-tab-a9-plus' },
-    { name: 'Galaxy Tab A9',        dsId: 'samsung-galaxy-tab-a9' },
-    { name: 'Galaxy Tab S8 Ultra',  dsId: 'samsung-galaxy-tab-s8-ultra' },
-    { name: 'Galaxy Tab S8+',       dsId: 'samsung-galaxy-tab-s8-plus' },
-    { name: 'Galaxy Tab S8',        dsId: 'samsung-galaxy-tab-s8' },
-  ],
-  'Xiaomi': [
-    { name: 'Xiaomi Pad 7 Ultra',     dsId: 'xiaomi-pad-7-ultra' },
-    { name: 'Xiaomi Pad 7 Pro',       dsId: 'xiaomi-pad-7-pro' },
-    { name: 'Xiaomi Pad 7',           dsId: 'xiaomi-pad-7' },
-    { name: 'Xiaomi Pad 6S Pro 12.4', dsId: 'xiaomi-pad-6s-pro-12-4' },
-    { name: 'Xiaomi Pad 6 Pro',       dsId: 'xiaomi-pad-6-pro' },
-    { name: 'Xiaomi Pad 6',           dsId: 'xiaomi-pad-6' },
-    { name: 'Xiaomi Pad 5 Pro',       dsId: 'xiaomi-pad-5-pro' },
-    { name: 'Xiaomi Pad 5',           dsId: 'xiaomi-pad-5' },
-    { name: 'Redmi Pad Pro',          dsId: 'xiaomi-redmi-pad-pro' },
-    { name: 'Redmi Pad SE',           dsId: 'xiaomi-redmi-pad-se' },
-    { name: 'Redmi Pad 2',            dsId: 'xiaomi-redmi-pad-2' },
-  ],
-  'Lenovo': [
-    { name: 'Tab Extreme',        dsId: 'lenovo-tab-extreme' },
-    { name: 'Tab P12 Pro',        dsId: 'lenovo-tab-p12-pro' },
-    { name: 'Tab P12',            dsId: 'lenovo-tab-p12' },
-    { name: 'Tab P11 Pro Gen 2',  dsId: 'lenovo-tab-p11-pro-gen-2' },
-    { name: 'Tab P11 Gen 2',      dsId: 'lenovo-tab-p11-gen-2' },
-    { name: 'Tab M11',            dsId: 'lenovo-tab-m11' },
-    { name: 'Tab M10 Plus Gen 3', dsId: 'lenovo-tab-m10-plus-gen-3' },
-  ],
-  'Huawei': [
-    { name: 'MatePad Pro 13.2',      dsId: 'huawei-matepad-pro-13-2' },
-    { name: 'MatePad Pro 11 (2024)', dsId: 'huawei-matepad-pro-11-2024' },
-    { name: 'MatePad 11.5 S',        dsId: 'huawei-matepad-11-5-s' },
-    { name: 'MatePad Air',           dsId: 'huawei-matepad-air' },
-    { name: 'MatePad 11 (2023)',      dsId: 'huawei-matepad-11-2023' },
-  ],
-  'Microsoft': [
-    { name: 'Surface Pro 11', dsId: 'microsoft-surface-pro-11' },
-    { name: 'Surface Pro 10', dsId: 'microsoft-surface-pro-10' },
-    { name: 'Surface Pro 9',  dsId: 'microsoft-surface-pro-9' },
-    { name: 'Surface Go 4',   dsId: 'microsoft-surface-go-4' },
-  ],
-  'Google':  [{ name: 'Pixel Tablet (2023)', dsId: 'google-pixel-tablet-2023' }],
-  'ASUS':    [{ name: 'ROG Flow Z13 (2024)', dsId: 'asus-rog-flow-z13-2024' }],
-  'OnePlus': [
-    { name: 'OnePlus Pad 2',  dsId: 'oneplus-pad-2' },
-    { name: 'OnePlus Pad Go', dsId: 'oneplus-pad-go' },
-    { name: 'OnePlus Pad',    dsId: 'oneplus-pad' },
-  ],
-  'Sony': [{ name: 'Xperia Z4 Tablet', dsId: 'sony-xperia-z4-tablet' }],
+  'Kirin 9010':       { single: 1200, multi: 4800,  npu: '20 TOPS' },
+  'Kirin 9000S':      { single: 1050, multi: 3900,  npu: '10 TOPS' },
+  'Helio G99':        { single: 820,  multi: 2800,  npu: null },
+  'Helio G85':        { single: 520,  multi: 1600,  npu: null },
+  'Adreno 650':       { single: 900,  multi: 3200,  npu: null },
 }
 
 const PRODUCTS_JSON_URL = 'https://raw.githubusercontent.com/Dalbonz/tablet-compare/main/products.json'
+
+const FALLBACK_DB = {
+  'Apple': [
+    { name: 'iPad Air 13 (2026)', dsId: 'bd9b668e' },
+    { name: 'iPad Air 11 (2026)', dsId: 'c1b1668c' },
+    { name: 'iPad Pro 13 (2025)', dsId: '92a16520' },
+    { name: 'iPad Pro 11 (2025)', dsId: '1fb3651c' },
+    { name: 'iPad Air 13 (2025)', dsId: 'c5e362c3' },
+    { name: 'iPad Air 11 (2025)', dsId: '0c7062c1' },
+    { name: 'iPad (2025)',        dsId: '5a8e62c5' },
+    { name: 'iPad Pro 13 (2024)', dsId: 'apple-ipad-pro-13-2024' },
+    { name: 'iPad Pro 11 (2024)', dsId: '4fc55fda' },
+    { name: 'iPad Air 13 (2024)', dsId: 'dab35fe1' },
+    { name: 'iPad Air 11 (2024)', dsId: '54865fdf' },
+  ],
+  'Samsung': [
+    { name: 'Galaxy Tab S11 Ultra', dsId: '540864a1' },
+    { name: 'Galaxy Tab S11',       dsId: 'd23d649f' },
+    { name: 'Galaxy Tab S10 Ultra', dsId: '577e613d' },
+    { name: 'Galaxy Tab S10+',      dsId: '89d0613e' },
+    { name: 'Galaxy Tab S9 Ultra',  dsId: 'e5835d57' },
+    { name: 'Galaxy Tab S9+',       dsId: '8cd35d55' },
+    { name: 'Galaxy Tab S9',        dsId: '3e195d54' },
+    { name: 'Galaxy Tab S9 FE',     dsId: 'b0925df5' },
+    { name: 'Galaxy Tab A9+',       dsId: '7c7d5e01' },
+    { name: 'Galaxy Tab A9',        dsId: '7c385dff' },
+    { name: 'Galaxy Tab S8+',       dsId: 'b4cc5895' },
+  ],
+  'Xiaomi': [
+    { name: 'Xiaomi Pad 7 Pro', dsId: '182061e1' },
+    { name: 'Xiaomi Pad 7',     dsId: '756361e0' },
+    { name: 'Xiaomi Pad 6 Pro', dsId: '28b85c73' },
+    { name: 'Xiaomi Pad 6',     dsId: 'b0bf5c72' },
+    { name: 'Redmi Pad SE',     dsId: '9be45d96' },
+  ],
+}
 
 export default {
   async fetch(request, env) {
@@ -152,7 +114,7 @@ function json(data, status = 200) {
 
 async function getProductList(manufacturer) {
   try {
-    const res = await fetch(PRODUCTS_JSON_URL, { cf: { cacheTtl: 3600, cacheEverything: true } })
+    const res = await fetch(PRODUCTS_JSON_URL)
     if (res.ok) {
       const data = await res.json()
       if (data[manufacturer]) return data[manufacturer].map(p => p.name)
@@ -163,7 +125,7 @@ async function getProductList(manufacturer) {
 
 async function getDsId(manufacturer, model) {
   try {
-    const res = await fetch(PRODUCTS_JSON_URL, { cf: { cacheTtl: 3600, cacheEverything: true } })
+    const res = await fetch(PRODUCTS_JSON_URL)
     if (res.ok) {
       const data = await res.json()
       const entry = (data[manufacturer] || []).find(p => p.name === model)
@@ -182,7 +144,7 @@ async function getSpecs(manufacturer, model) {
     if (html) {
       parseDeviceSpecs(html, specs)
       const imgMatch = html.match(/property="og:image"[^>]+content="([^"]+)"/)
-      if (imgMatch) specs.imageUrl = imgMatch[1]
+      if (imgMatch && !imgMatch[1].includes('logo')) specs.imageUrl = imgMatch[1]
     }
   }
   if (specs.chipset) {
@@ -200,60 +162,108 @@ async function getSpecs(manufacturer, model) {
 }
 
 function parseDeviceSpecs(html, specs) {
+  // meta description 파싱
   const metaMatch = html.match(/name="description"\s+content="([^"]+)"/i)
     || html.match(/content="([^"]+)"\s+name="description"/i)
-  if (!metaMatch) return
-  const desc = metaMatch[1]
-  const get = (key) => {
-    const re = new RegExp(`${key}:\\s*([^,]+(?:mm|g|GB|mAh|in)[^,]*)`, 'i')
-    const m = desc.match(re)
-    if (m) return m[1].trim()
-    const re2 = new RegExp(`${key}:\\s*([^,\\.\"]+)`, 'i')
-    const m2 = desc.match(re2)
-    return m2 ? m2[1].trim() : null
+  
+  if (metaMatch) {
+    const desc = metaMatch[1]
+    const get = (key) => {
+      const re = new RegExp(`${key}:\\s*([^,]+(?:mm|g|GB|mAh|in)[^,]*)`, 'i')
+      const m = desc.match(re)
+      if (m) return m[1].trim()
+      const re2 = new RegExp(`${key}:\\s*([^,\\.\"]+)`, 'i')
+      const m2 = desc.match(re2)
+      return m2 ? m2[1].trim() : null
+    }
+    specs.dimensions = get('Dimensions')
+    specs.weight     = get('Weight')
+    specs.chipset    = get('SoC')
+    specs.cpu        = get('CPU')
+    specs.gpu        = get('GPU')
+    specs.ram        = get('RAM')
+    specs.storage    = get('Storage')
+    specs.battery    = get('Battery')
+
+    // 디스플레이
+    const dispMatch = desc.match(/Display:\s*([\d.]+\s*in),\s*([^,]+),\s*([\d]+\s*x\s*[\d]+\s*pixels)/i)
+    if (dispMatch) {
+      specs.displaySize = dispMatch[1]
+      specs.displayType = dispMatch[2].trim()
+      specs.resolution  = dispMatch[3].trim()
+    }
+    const osMatch = desc.match(/OS:\s*([^\.\"]+)/i)
+    if (osMatch) specs.os = osMatch[1].trim()
+
+    // 가격
+    const priceMatch = desc.match(/\$[\d,]+/)
+    if (priceMatch) specs.price = priceMatch[0]
   }
-  specs.dimensions = get('Dimensions')
-  specs.weight     = get('Weight')
-  specs.chipset    = get('SoC')
-  specs.cpu        = get('CPU')
-  specs.gpu        = get('GPU')
-  specs.ram        = get('RAM')
-  specs.storage    = get('Storage')
-  specs.battery    = get('Battery')
-  const dispMatch = desc.match(/Display:\s*([\d.]+\s*in),\s*([^,]+),\s*([\d]+\s*x\s*[\d]+\s*pixels)/i)
-  if (dispMatch) {
-    specs.displaySize = dispMatch[1]
-    specs.displayType = dispMatch[2].trim()
-    specs.resolution  = dispMatch[3].trim()
-  }
-  const osMatch = desc.match(/OS:\s*([^\.\"]+)/i)
-  if (osMatch) specs.os = osMatch[1].trim()
+
+  // b태그 파싱
   const bGet = (key) => {
     const re = new RegExp(`<b>${key}<\\/b>:\\s*([^<]+)`, 'i')
     const m = html.match(re)
     return m ? m[1].trim() : null
   }
+
   specs.wlan      = bGet('Wi-Fi')
-  specs.bluetooth = bGet('Bluetooth')
+  specs.bluetooth = bGet('Bluetooth') ? 'Bluetooth ' + bGet('Bluetooth') : null
   specs.usb       = bGet('USB')
   specs.gps       = bGet('Positioning') || bGet('GPS')
+
+  // 카메라 - b태그에서
   const camRaw = bGet('Camera')
-  if (camRaw) specs.rearCamera = camRaw.split(',')[0]?.trim()
-  const hzMatch = html.match(/(\d+)\s*Hz/i)
-  if (hzMatch) specs.refreshRate = hzMatch[1] + ' Hz'
+  if (camRaw) {
+    const parts = camRaw.split(',')
+    specs.rearCamera = parts[0]?.trim() || null
+    // 두 번째 해상도가 있으면 전면 카메라로
+    if (parts.length > 1) specs.frontCamera = parts[1]?.trim() || null
+  }
+
+  // 전면 카메라 - Front camera 태그
+  const frontRaw = bGet('Front camera')
+  if (frontRaw) specs.frontCamera = frontRaw
+
+  // 주사율 - displayType에서만 추출 (더 정확)
+  if (specs.displayType) {
+    const hzMatch = specs.displayType.match(/(\d+)\s*Hz/i)
+    if (hzMatch) specs.refreshRate = hzMatch[1] + ' Hz'
+  }
+  // displayType에 없으면 HTML 전체에서 (단 명확한 패턴만)
+  if (!specs.refreshRate) {
+    const hzMatch = html.match(/(\d+)Hz\s*refresh/i) || html.match(/refresh[^<]{0,20}(\d+)Hz/i)
+    if (hzMatch) specs.refreshRate = hzMatch[1] + ' Hz'
+  }
+
+  // 밝기
   const nitsMatch = html.match(/([\d,]+)\s*nits/i)
   if (nitsMatch) specs.brightness = nitsMatch[1].replace(',','') + ' nits'
-  const wattMatch = html.match(/(\d+)\s*W\s*(?:charging|fast)/i)
+
+  // 충전 - 더 정확한 패턴
+  const wattMatch = html.match(/(\d+)W\s*(?:fast\s*)?charg/i)
+    || html.match(/charg[^<]{0,30}(\d+)\s*W/i)
+    || html.match(/>(\d+)W<\//)
   if (wattMatch) specs.charging = wattMatch[1] + 'W'
+
+  // PPI
   const ppiMatch = html.match(/([\d]+)\s*ppi/i)
   if (ppiMatch) specs.ppi = ppiMatch[1] + ' ppi'
-  const priceMatch = desc.match(/\$[\d,]+/)
-  if (priceMatch) specs.price = priceMatch[0]
-  specs.nfc       = html.match(/\bNFC\b/i) ? '있음' : '없음'
-  specs.headphone = html.match(/3\.5\s*mm/i) ? '있음' : '없음'
+
+  // NFC - 명확하게
+  specs.nfc = html.match(/<b>NFC<\/b>/i) ? '있음' : '없음'
+
+  // 3.5mm - 명확하게
+  specs.headphone = html.match(/<b>3\.5mm/i) || html.match(/3\.5\s*mm\s*jack/i) ? '있음' : '없음'
+
+  // 스피커
   if (html.match(/4\s*speakers|quad\s*speaker/i)) specs.speakers = '4채널'
   else if (html.match(/[Ss]tereo\s*speakers/i)) specs.speakers = '스테레오'
   else if (html.match(/[Ss]ingle\s*speaker/i)) specs.speakers = '모노'
+
+  // 센서
+  const sensorMatch = bGet('Sensors')
+  if (sensorMatch) specs.sensors = sensorMatch
 }
 
 async function fetchHtml(url) {
@@ -264,10 +274,8 @@ async function fetchHtml(url) {
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'en-US,en;q=0.9',
       },
-      cf: { cacheTtl: 3600, cacheEverything: true },
     })
     if (!res.ok) return null
     return await res.text()
   } catch { return null }
 }
-
