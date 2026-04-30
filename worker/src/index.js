@@ -191,6 +191,22 @@ async function getDsId(manufacturer, model) {
   return entry?.dsId || null
 }
 
+// Apple 칩셋별 기본 RAM (devicespecifications.com이 MHz만 기재하는 경우 폴백)
+const APPLE_RAM_FALLBACK = {
+  'Apple M5':         12,
+  'Apple M4 Pro':     24,
+  'Apple M4':          8,
+  'Apple M3 Pro':     18,
+  'Apple M3':          8,
+  'Apple M2 Pro':     16,
+  'Apple M2':          8,
+  'Apple M1':          8,
+  'Apple A17 Pro':     8,
+  'Apple A16 Bionic':  4,
+  'Apple A15 Bionic':  4,
+  'Apple A14 Bionic':  4,
+}
+
 async function getSpecs(manufacturer, model) {
   const dsId = await getDsId(manufacturer, model)
   const specs = {}
@@ -211,6 +227,13 @@ async function getSpecs(manufacturer, model) {
       specs.singleCore = String(perf.single)
       specs.multiCore  = String(perf.multi)
       if (perf.npu) specs.npu = perf.npu
+    }
+    // Apple RAM 폴백: devicespecifications.com이 GB 대신 MHz만 기재하는 경우
+    if (!specs.ram) {
+      const appleKey = Object.keys(APPLE_RAM_FALLBACK).find(k =>
+        specs.chipset.toLowerCase().includes(k.toLowerCase())
+      )
+      if (appleKey) specs.ram = APPLE_RAM_FALLBACK[appleKey] + ' GB'
     }
   }
   return specs
