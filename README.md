@@ -1,70 +1,22 @@
-# Tablet Compare Pro
+# Tablet Compare
 
-태블릿 제품 스펙 비교 앱 — GSMArena + Nanoreview 실시간 크롤링 기반
+부서 내 태블릿 스펙 비교 앱
+
+## 배포 URL
+- 프론트: https://tablet-compare.pages.dev
+- Worker: https://tablet-compare-worker.swpark1204.workers.dev
 
 ## 기술 스택
-- **Frontend**: React + Vite
-- **Backend/크롤링**: Cloudflare Workers
-- **호스팅**: Cloudflare Pages
-- **비용**: 완전 무료 🎉
+- Frontend: React + Vite → Cloudflare Pages
+- Backend: Cloudflare Worker
+- 데이터: devicespecifications.com
+- AP 성능: CHIP_DB 하드코딩 (Geekbench 6)
+- 제품목록: GitHub Actions 주간 자동 업데이트
 
-## 로컬 개발 환경 세팅
+## 신제품 출시 시
+1. worker/src/index.js CHIP_DB에 새 칩셋 추가
+2. products.json은 GitHub Actions 자동 업데이트
+3. Worker 재배포
 
-### 필수 설치
-```bash
-node -v   # v18 이상 필요
-npm -v
-```
-
-### 1. 프로젝트 클론
-```bash
-git clone https://github.com/Dalbonz/Tablet_compare.git
-cd Tablet_compare
-```
-
-### 2. 프론트엔드 세팅
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-### 3. Cloudflare Worker 세팅
-```bash
-cd ../worker
-npm install
-npx wrangler dev
-```
-
-## 배포
-
-### Cloudflare Pages (프론트엔드)
-```bash
-cd frontend
-npm run build
-# Cloudflare Pages에 dist/ 폴더 연결
-```
-
-### Cloudflare Workers (백엔드)
-```bash
-cd worker
-npx wrangler deploy
-```
-
-## 프로젝트 구조
-```
-Tablet_compare/
-├── frontend/          # React + Vite 앱
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── ProductCard.jsx
-│   │   │   ├── CompareTable.jsx
-│   │   │   └── AddProductPanel.jsx
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   └── package.json
-└── worker/            # Cloudflare Worker (크롤링 API)
-    ├── src/
-    │   └── index.js
-    └── wrangler.toml
-```
+## 클로이에게
+자세한 컨텍스트는 README_CONTEXT.md 참조

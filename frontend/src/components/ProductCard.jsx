@@ -33,7 +33,6 @@ export default function ProductCard({ product, isReference, manufacturers, onRem
 
   return (
     <div className={`product-card${isReference ? ' reference' : ''}`}>
-      {isReference && <div className="reference-badge">기준 (Reference)</div>}
       <button className="card-close-btn" onClick={onRemove}>×</button>
 
       <div className="card-label">제조사 선택</div>
@@ -55,7 +54,7 @@ export default function ProductCard({ product, isReference, manufacturers, onRem
           <img src={product.imageUrl} alt={product.model} />
         ) : (
           <div className="product-image-placeholder">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <rect x="5" y="2" width="14" height="20" rx="2"/>
               <line x1="12" y1="18" x2="12" y2="18.01"/>
             </svg>
@@ -63,10 +62,7 @@ export default function ProductCard({ product, isReference, manufacturers, onRem
         )}
       </div>
 
-      {product.model && (
-        <div className="product-name">{product.model}</div>
-      )}
+      {product.model && <div className="product-name">{product.model}</div>}
     </div>
   )
 }
-

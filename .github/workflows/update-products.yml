@@ -1,0 +1,48 @@
+name: Update Tablet Product List
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Scrape product list
+        run: node scripts/scrape-products.js
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet products.json; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+      - name: Commit and push
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add products.json
+          git commit -m "chore: update tablet product list $(date +'%Y-%m-%d')"
+          git push
+      - name: Send email notification
+        if: steps.changes.outputs.changed == 'true'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "🆕 Tablet Compare - 신제품 목록 업데이트됨"
+          body: |
+            새로운 태블릿 제품이 추가되었습니다!
+            새 칩셋이 포함된 제품이 있다면 클로이에게 Geekbench DB 업데이트를 요청하세요.
+            확인: https://github.com/Dalbonz/tablet-compare/blob/main/products.json
+          to: swpark1204@gmail.com
+          from: Tablet Compare Bot
