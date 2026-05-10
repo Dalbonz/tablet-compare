@@ -142,7 +142,6 @@ export default function CompareTable({ products, settings, categories: categorie
   const leftCmp = isCenterMode ? compareProducts[0] : null
   const rightCmp = isCenterMode ? compareProducts[1] : null
   const totalCols = 2 + 1 + compareProducts.length * 2
-  const tableMaxWidth = 384 + Math.min(compareProducts.length, 2) * 214
 
   const handleCopyImage = async () => {
     if (!tableRef.current || copying) return

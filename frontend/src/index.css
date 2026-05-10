@@ -204,7 +204,8 @@ body {
 /* ── Compare table ── */
 .compare-table-wrap {
   background: var(--white); border: 1px solid var(--gray-200);
-  border-radius: 12px; overflow: hidden; margin-bottom: 20px;
+  border-radius: 12px; overflow-x: auto; margin-bottom: 20px;
+  width: 100%;
 }
 
 .compare-table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }

@@ -152,8 +152,6 @@ export default function App() {
     imageUrl: r.imageUrl,
   }))
 
-  const contentMaxWidth = 384 + Math.min(rows.length - 1, 2) * 214
-
   return (
     <div style={{ display: 'flex' }}>
       {/* ── Sidebar ── */}
@@ -210,79 +208,54 @@ export default function App() {
         </header>
 
         <div className="content">
-          <div style={{ maxWidth: contentMaxWidth }}>
-          <div className="top-section">
-            {/* ── 제품 선택 행들 ── */}
-            <div className="selector-area">
-              {rows.map((row, idx) => (
-                <div key={row.id} className="selector-row">
-                  <div className="selector-btn-cell">
-                    {idx === 0
-                      ? <span className="selector-reference-badge">기준</span>
-                      : <button className="selector-remove-btn" onClick={() => removeRow(row.id)} title="제거">×</button>
-                    }
-                  </div>
-
-                  <select
-                    className="selector-select"
-                    value={row.manufacturer}
-                    onChange={e => handleManufacturerChange(row.id, e.target.value)}
-                  >
-                    <option value="">제조사 선택</option>
-                    {manufacturers.filter(m => !b2bMfr.includes(m)).map(m => <option key={m} value={m}>{m}</option>)}
-                    {b2bMfr.length > 0 && (
-                      <optgroup label="B2B / Enterprise">
-                        {b2bMfr.map(m => <option key={m} value={m}>{m}</option>)}
-                      </optgroup>
-                    )}
-                  </select>
-
-                  <select
-                    className="selector-select selector-select-product"
-                    value={row.model}
-                    onChange={e => handleModelChange(row.id, e.target.value)}
-                    disabled={!row.manufacturer}
-                  >
-                    <option value="">제품 선택</option>
-                    {row.productList.map(p => <option key={p} value={p}>{p}</option>)}
-                  </select>
-
-                  <div className="selector-move-cell">
-                    <button className="selector-move-btn" onClick={() => moveRow(row.id, 'up')} disabled={idx === 0} title="위로">▲</button>
-                    <button className="selector-move-btn" onClick={() => moveRow(row.id, 'down')} disabled={idx === rows.length - 1} title="아래로">▼</button>
-                  </div>
-
-                  {idx === rows.length - 1 && rows.length < 5 && (
-                    <button className="selector-add-btn" onClick={addRow} title="제품 추가">+</button>
-                  )}
+          {/* ── 제품 선택 행들 ── */}
+          <div className="selector-area" style={{ marginBottom: 12 }}>
+            {rows.map((row, idx) => (
+              <div key={row.id} className="selector-row">
+                <div className="selector-btn-cell">
+                  {idx === 0
+                    ? <span className="selector-reference-badge">기준</span>
+                    : <button className="selector-remove-btn" onClick={() => removeRow(row.id)} title="제거">×</button>
+                  }
                 </div>
-              ))}
-            </div>
 
-            {/* Info - selector 우측에 항상 표시 */}
-            <div className="info-bar">
-              <div className="info-card">
-                <h4>사용 방법</h4>
-                <ol>
-                  <li>좌측 아이콘으로 태블릿 / PC 비교 모드를 선택합니다.</li>
-                  <li>제조사를 선택하면 해당 브랜드의 제품 목록이 표시됩니다.</li>
-                  <li>제품을 선택하면 스펙이 자동으로 채워집니다.</li>
-                  <li>최대 5개 제품까지 비교 가능. 첫 번째 행이 기준이며, ▲▼ 버튼으로 순서 변경 또는 비교 제품 이름 클릭으로 기준 설정.</li>
-                </ol>
+                <select
+                  className="selector-select"
+                  value={row.manufacturer}
+                  onChange={e => handleManufacturerChange(row.id, e.target.value)}
+                >
+                  <option value="">제조사 선택</option>
+                  {manufacturers.filter(m => !b2bMfr.includes(m)).map(m => <option key={m} value={m}>{m}</option>)}
+                  {b2bMfr.length > 0 && (
+                    <optgroup label="B2B / Enterprise">
+                      {b2bMfr.map(m => <option key={m} value={m}>{m}</option>)}
+                    </optgroup>
+                  )}
+                </select>
+
+                <select
+                  className="selector-select selector-select-product"
+                  value={row.model}
+                  onChange={e => handleModelChange(row.id, e.target.value)}
+                  disabled={!row.manufacturer}
+                >
+                  <option value="">제품 선택</option>
+                  {row.productList.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+
+                <div className="selector-move-cell">
+                  <button className="selector-move-btn" onClick={() => moveRow(row.id, 'up')} disabled={idx === 0} title="위로">▲</button>
+                  <button className="selector-move-btn" onClick={() => moveRow(row.id, 'down')} disabled={idx === rows.length - 1} title="아래로">▼</button>
+                </div>
+
+                {idx === rows.length - 1 && rows.length < 5 && (
+                  <button className="selector-add-btn" onClick={addRow} title="제품 추가">+</button>
+                )}
               </div>
-              <div className="info-card">
-                <h4>비교 배지 설명</h4>
-                <p style={{fontSize:'11px',color:'#6b7280',marginBottom:'8px'}}>꺽쇠가 더 큰 쪽으로 열립니다.</p>
-                <div className="legend-row"><span className="legend-badge compare-badge">&lt;&lt;</span><span className="value-superior" style={{padding:'1px 6px',borderRadius:'3px'}}>기준 대비 {settings.thresholds.superior}%+ 우위</span></div>
-                <div className="legend-row"><span className="legend-badge compare-badge">&lt;</span><span className="value-superior" style={{padding:'1px 6px',borderRadius:'3px'}}>{settings.thresholds.slightlySuper}~{settings.thresholds.superior}% 우위</span></div>
-                <div className="legend-row"><span className="legend-badge compare-badge">=</span><span>±{settings.thresholds.slightlySuper}% 동등</span></div>
-                <div className="legend-row"><span className="legend-badge compare-badge">&gt;</span><span className="value-inferior" style={{padding:'1px 6px',borderRadius:'3px'}}>{settings.thresholds.slightlySuper}~{settings.thresholds.superior}% 열세</span></div>
-                <div className="legend-row"><span className="legend-badge compare-badge">&gt;&gt;</span><span className="value-inferior" style={{padding:'1px 6px',borderRadius:'3px'}}>{settings.thresholds.superior}%+ 열세</span></div>
-              </div>
-            </div>
+            ))}
           </div>
 
-          {/* Compare table */}
+          {/* ── 비교 표 ── */}
           {products.some(p => p.specs) && (
             <CompareTable
               products={products}
@@ -293,6 +266,27 @@ export default function App() {
               onToggleLayout={toggleLayout}
             />
           )}
+
+          {/* ── 사용 방법 + 비교 배지 (표 아래) ── */}
+          <div className="info-bar" style={{ marginTop: 16 }}>
+            <div className="info-card">
+              <h4>사용 방법</h4>
+              <ol>
+                <li>좌측 아이콘으로 태블릿 / PC 비교 모드를 선택합니다.</li>
+                <li>제조사를 선택하면 해당 브랜드의 제품 목록이 표시됩니다.</li>
+                <li>제품을 선택하면 스펙이 자동으로 채워집니다.</li>
+                <li>최대 5개 제품까지 비교 가능. 첫 번째 행이 기준이며, ▲▼ 버튼으로 순서 변경 또는 비교 제품 이름 클릭으로 기준 설정.</li>
+              </ol>
+            </div>
+            <div className="info-card">
+              <h4>비교 배지 설명</h4>
+              <p style={{fontSize:'11px',color:'#6b7280',marginBottom:'8px'}}>꺽쇠가 더 큰 쪽으로 열립니다.</p>
+              <div className="legend-row"><span className="legend-badge compare-badge">&lt;&lt;</span><span className="value-superior" style={{padding:'1px 6px',borderRadius:'3px'}}>기준 대비 {settings.thresholds.superior}%+ 우위</span></div>
+              <div className="legend-row"><span className="legend-badge compare-badge">&lt;</span><span className="value-superior" style={{padding:'1px 6px',borderRadius:'3px'}}>{settings.thresholds.slightlySuper}~{settings.thresholds.superior}% 우위</span></div>
+              <div className="legend-row"><span className="legend-badge compare-badge">=</span><span>±{settings.thresholds.slightlySuper}% 동등</span></div>
+              <div className="legend-row"><span className="legend-badge compare-badge">&gt;</span><span className="value-inferior" style={{padding:'1px 6px',borderRadius:'3px'}}>{settings.thresholds.slightlySuper}~{settings.thresholds.superior}% 열세</span></div>
+              <div className="legend-row"><span className="legend-badge compare-badge">&gt;&gt;</span><span className="value-inferior" style={{padding:'1px 6px',borderRadius:'3px'}}>{settings.thresholds.superior}%+ 열세</span></div>
+            </div>
           </div>
         </div>
       </div>
