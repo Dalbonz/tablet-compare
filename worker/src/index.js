@@ -43,8 +43,13 @@ const CHIP_DB = {
   'Exynos 1580':     { single: 1100, multi: 3800, npu: null },
   'Exynos 1380':     { single: 920,  multi: 3200, npu: null },
   'Exynos 2200':     { single: 1350, multi: 4200, npu: '22 TOPS' },
+  'Snapdragon X Elite':  { single: 2600, multi: 14000, npu: '45 TOPS' },
+  'Snapdragon X Plus':   { single: 2200, multi: 10000, npu: '45 TOPS' },
   'Intel Core Ultra 5': { single: 2200, multi: 10500, npu: '34 TOPS' },
   'Intel Core Ultra 7': { single: 2400, multi: 12000, npu: '34 TOPS' },
+  'Intel Core i5-1235U': { single: 1850, multi: 8000,  npu: null },
+  'Intel N200':          { single: 800,  multi: 2400,  npu: null },
+  'Ryzen 9 8945HS':      { single: 2500, multi: 14000, npu: '33 TOPS' },
   'Kirin 9010':  { single: 1200, multi: 4800, npu: '20 TOPS' },
   'Kirin 9000S': { single: 1050, multi: 3900, npu: '10 TOPS' },
   'Helio G99':   { single: 820,  multi: 2800, npu: null },
@@ -123,23 +128,26 @@ const FALLBACK_DB = {
     { name: 'OnePlus Pad',    dsId: 'c80a5bd7' },
   ],
   'Sony': [{ name: 'Xperia Z4 Tablet', dsId: '3f0036f3' }],
+  'Samsung (Active)': [
+    { name: 'Galaxy Tab Active5 (B2B)',    dsId: '' },
+    { name: 'Galaxy Tab Active4 Pro (B2B)', dsId: '' },
+  ],
+  'Zebra': [
+    { name: 'ET40 8" (B2B)',   dsId: '' },
+    { name: 'ET45 8" 5G (B2B)', dsId: '' },
+    { name: 'ET60 10" (B2B)',  dsId: '' },
+    { name: 'ET65 10" 5G (B2B)', dsId: '' },
+  ],
+  'Panasonic': [
+    { name: 'Toughbook FZ-A3 (B2B)', dsId: '' },
+    { name: 'Toughbook FZ-B3 (B2B)', dsId: '' },
+  ],
 }
 
 // 픽셀 해상도 → MP 변환
 function pixelsToMP(w, h) {
   const mp = (w * h) / 1000000
   return Math.round(mp) + 'MP'
-}
-
-// 카메라 해상도 문자열 → MP
-function parseCamera(raw) {
-  if (!raw) return null
-  // "4032 x 3024 pixels" 패턴
-  const m = raw.match(/(\d+)\s*x\s*(\d+)\s*pixels/i)
-  if (m) return pixelsToMP(parseInt(m[1]), parseInt(m[2]))
-  // 이미 MP면 그대로
-  if (raw.includes('MP')) return raw
-  return raw
 }
 
 export default {
@@ -156,6 +164,15 @@ export default {
         const mfr = url.searchParams.get('manufacturer')
         const model = url.searchParams.get('model')
         return json(await getSpecs(mfr, model))
+      }
+      if (path === '/pc/products') {
+        const mfr = url.searchParams.get('manufacturer')
+        return json({ products: await getPCProductList(mfr) })
+      }
+      if (path === '/pc/specs') {
+        const mfr = url.searchParams.get('manufacturer')
+        const model = url.searchParams.get('model')
+        return json(await getPCSpecs(mfr, model))
       }
       return json({ error: 'Not found' }, 404)
     } catch (e) {
@@ -209,6 +226,273 @@ const APPLE_RAM_FALLBACK = {
   'Apple A14 Bionic':  4,
 }
 
+const FALLBACK_TABLET_SPECS = {
+  'Microsoft': {
+    'Surface Pro 11': {
+      launch: '2024.06',
+      dimensions: '287.0 x 209.0 x 9.3 mm', weight: '879 g',
+      displaySize: '13.0 in', displayType: 'PixelSense Flow LCD, Touch',
+      refreshRate: '120', resolution: '2880 x 1920 pixels', ppi: '267',
+      chipset: 'Snapdragon X Plus', gpu: 'Qualcomm Adreno X1-45',
+      ram: '16 GB', storage: '256 GB',
+      rearCamera: '10MP', frontCamera: '5MP',
+      speakers: '스테레오', headphone: '없음',
+      battery: '53 Wh', charging: '65 W',
+      wlan: 'Wi-Fi 7', bluetooth: '5.4', nfc: '없음',
+      usb: 'USB4 (x2), USB-A',
+      sensors: 'Accelerometer, Gyroscope, Compass',
+      imageUrl: 'https://cdn-dynmedia-1.microsoft.com/is/image/microsoftcorp/12-pro-violet-center-render-fy25?fmt=png-alpha&wid=600&hei=450',
+    },
+    'Surface Pro 10': {
+      launch: '2024.03',
+      dimensions: '287.0 x 209.0 x 9.3 mm', weight: '879 g',
+      displaySize: '13.0 in', displayType: 'PixelSense Flow LCD, Touch',
+      refreshRate: '120', resolution: '2880 x 1920 pixels', ppi: '267',
+      chipset: 'Intel Core Ultra 7 165U', gpu: 'Intel Arc (integrated)',
+      ram: '16 GB', storage: '256 GB',
+      rearCamera: '10MP', frontCamera: '1080p',
+      speakers: '스테레오', headphone: '없음',
+      battery: '53 Wh', charging: '65 W',
+      wlan: 'Wi-Fi 6E', bluetooth: '5.3', nfc: '없음',
+      usb: 'USB4 (x2), USB-A',
+      sensors: 'Accelerometer, Gyroscope, Compass',
+      imageUrl: 'https://cdn-dynmedia-1.microsoft.com/is/image/microsoftcorp/MSFT-Hub-3-FOD?fmt=png-alpha&wid=600&hei=450',
+    },
+    'Surface Pro 9': {
+      launch: '2022.10',
+      dimensions: '287.0 x 209.0 x 9.3 mm', weight: '879 g',
+      displaySize: '13.0 in', displayType: 'PixelSense Flow LCD, Touch',
+      refreshRate: '120', resolution: '2880 x 1920 pixels', ppi: '267',
+      chipset: 'Intel Core i5-1235U', gpu: 'Intel Iris Xe Graphics',
+      ram: '8 GB', storage: '128 GB',
+      rearCamera: '10MP', frontCamera: '5MP',
+      speakers: '스테레오', headphone: '없음',
+      battery: '47.36 Wh', charging: '65 W',
+      wlan: 'Wi-Fi 6E', bluetooth: '5.1', nfc: '없음',
+      usb: 'USB4 (x2)',
+      sensors: 'Accelerometer, Gyroscope, Compass',
+      imageUrl: 'https://cdn-dynmedia-1.microsoft.com/is/image/microsoftcorp/13-pro-ocean-center-render-fy25?fmt=png-alpha&wid=600&hei=450',
+    },
+    'Surface Go 4': {
+      launch: '2023.09',
+      dimensions: '245.3 x 175.0 x 8.3 mm', weight: '521 g',
+      displaySize: '10.5 in', displayType: 'PixelSense LCD, Touch',
+      refreshRate: '60', resolution: '1920 x 1280 pixels', ppi: '220',
+      chipset: 'Intel N200', gpu: 'Intel UHD Graphics',
+      ram: '8 GB', storage: '64 GB',
+      rearCamera: '8MP', frontCamera: '5MP',
+      speakers: '스테레오', headphone: '없음',
+      battery: '26.13 Wh', charging: '45 W',
+      wlan: 'Wi-Fi 6', bluetooth: '5.1', nfc: '없음',
+      usb: 'USB-C 3.2',
+      sensors: 'Accelerometer, Gyroscope, Compass',
+      imageUrl: 'https://cdn-dynmedia-1.microsoft.com/is/image/microsoftcorp/13-product-comparison-render1-fy25?fmt=png-alpha&wid=600&hei=450',
+    },
+  },
+  'ASUS': {
+    'ROG Flow Z13 (2024)': {
+      launch: '2024.01',
+      dimensions: '302.0 x 208.1 x 12.5 mm', weight: '1180 g',
+      displaySize: '13.4 in', displayType: 'IPS QHD+, Touch',
+      refreshRate: '165', resolution: '2560 x 1600 pixels', ppi: '226',
+      chipset: 'AMD Ryzen 9 8945HS', gpu: 'AMD Radeon 780M + RTX 4070',
+      ram: '16 GB', storage: '1 TB',
+      rearCamera: '없음', frontCamera: '720p',
+      speakers: '스테레오', headphone: '있음',
+      battery: '40 Wh', charging: '100 W',
+      wlan: 'Wi-Fi 6E', bluetooth: '5.3', nfc: '없음',
+      usb: 'USB4, USB3.2, USB-A, HDMI 2.1',
+      sensors: 'Accelerometer, Gyroscope',
+    },
+  },
+}
+
+const FALLBACK_TABLET_SPECS_B2B = {
+  'Samsung (Active)': {
+    'Galaxy Tab Active5 (B2B)': {
+      dimensions: '168.1 x 99.6 x 10.6 mm', weight: '392 g',
+      displaySize: '8.0 in', displayType: 'TFT LCD, Gorilla Glass 5',
+      refreshRate: '60', resolution: '1920 x 1200 pixels', ppi: '283',
+      chipset: 'Exynos 1380', gpu: 'ARM Mali-G68 MP5',
+      ram: '6 GB', storage: '128 GB',
+      rearCamera: '13MP', frontCamera: '5MP',
+      speakers: '스테레오', headphone: '있음',
+      battery: '5050 mAh', charging: '45W',
+      wlan: 'Wi-Fi 6', bluetooth: 'Bluetooth 5.3', nfc: '있음',
+      usb: 'USB-C 3.2', sensors: 'Accelerometer, Gyroscope, Compass, Barometer',
+      imageUrl: 'https://images.samsung.com/is/image/samsung/p6pim/global/sm-x306bzaaxfe/gallery/global-galaxy-tab-active5-x306-sm-x306bzaaxfe-543136289',
+    },
+    'Galaxy Tab Active4 Pro (B2B)': {
+      dimensions: '198.8 x 121.0 x 10.2 mm', weight: '630 g',
+      displaySize: '10.1 in', displayType: 'TFT LCD, Gorilla Glass 5',
+      refreshRate: '60', resolution: '1920 x 1200 pixels', ppi: '224',
+      chipset: 'Snapdragon 778G', gpu: 'Qualcomm Adreno 642L',
+      ram: '6 GB', storage: '128 GB',
+      rearCamera: '13MP', frontCamera: '8MP',
+      speakers: '스테레오', headphone: '있음',
+      battery: '7600 mAh', charging: '45W',
+      wlan: 'Wi-Fi 6', bluetooth: 'Bluetooth 5.2', nfc: '있음',
+      usb: 'USB-C 3.2', sensors: 'Accelerometer, Gyroscope, Compass, Barometer',
+    },
+  },
+  'Zebra': {
+    'ET40 8" (B2B)': {
+      dimensions: '220.0 x 139.0 x 17.3 mm', weight: '539 g',
+      displaySize: '8.0 in', displayType: 'LCD, Gorilla Glass, Touch',
+      refreshRate: '60', resolution: '1920 x 1200 pixels', ppi: '283',
+      chipset: 'Snapdragon 660', gpu: 'Qualcomm Adreno 512',
+      ram: '4 GB', storage: '32 GB',
+      rearCamera: '13MP', frontCamera: '5MP',
+      speakers: '스테레오', headphone: '있음',
+      battery: '4420 mAh', charging: '18W',
+      wlan: 'Wi-Fi 6', bluetooth: 'Bluetooth 5.0', nfc: '있음',
+      usb: 'USB-C 2.0', sensors: 'Accelerometer, Gyroscope, Compass, Barometer',
+    },
+    'ET45 8" 5G (B2B)': {
+      dimensions: '221.0 x 140.0 x 19.2 mm', weight: '589 g',
+      displaySize: '8.0 in', displayType: 'LCD, Gorilla Glass, Touch',
+      refreshRate: '60', resolution: '1920 x 1200 pixels', ppi: '283',
+      chipset: 'Snapdragon 6490', gpu: 'Qualcomm Adreno 643',
+      ram: '6 GB', storage: '64 GB',
+      rearCamera: '13MP', frontCamera: '5MP',
+      speakers: '스테레오', headphone: '있음',
+      battery: '4420 mAh', charging: '18W',
+      wlan: 'Wi-Fi 6E', bluetooth: 'Bluetooth 5.2', nfc: '있음',
+      usb: 'USB-C 2.0', sensors: 'Accelerometer, Gyroscope, Compass, Barometer',
+    },
+    'ET60 10" (B2B)': {
+      dimensions: '268.0 x 183.0 x 18.5 mm', weight: '820 g',
+      displaySize: '10.1 in', displayType: 'LCD, Gorilla Glass, Touch',
+      refreshRate: '60', resolution: '1920 x 1200 pixels', ppi: '224',
+      chipset: 'Snapdragon 6490', gpu: 'Qualcomm Adreno 643',
+      ram: '8 GB', storage: '128 GB',
+      rearCamera: '13MP', frontCamera: '5MP',
+      speakers: '스테레오', headphone: '있음',
+      battery: '7200 mAh', charging: '18W',
+      wlan: 'Wi-Fi 6E', bluetooth: 'Bluetooth 5.2', nfc: '있음',
+      usb: 'USB-C 2.0', sensors: 'Accelerometer, Gyroscope, Compass, Barometer',
+    },
+    'ET65 10" 5G (B2B)': {
+      dimensions: '268.0 x 183.0 x 19.5 mm', weight: '870 g',
+      displaySize: '10.1 in', displayType: 'LCD, Gorilla Glass, Touch',
+      refreshRate: '60', resolution: '1920 x 1200 pixels', ppi: '224',
+      chipset: 'Snapdragon 6490', gpu: 'Qualcomm Adreno 643',
+      ram: '8 GB', storage: '128 GB',
+      rearCamera: '13MP', frontCamera: '5MP',
+      speakers: '스테레오', headphone: '있음',
+      battery: '7200 mAh', charging: '18W',
+      wlan: 'Wi-Fi 6E', bluetooth: 'Bluetooth 5.2', nfc: '있음',
+      usb: 'USB-C 2.0', sensors: 'Accelerometer, Gyroscope, Compass, Barometer',
+    },
+  },
+  'Panasonic': {
+    'Toughbook FZ-A3 (B2B)': {
+      dimensions: '261.0 x 185.0 x 19.8 mm', weight: '720 g',
+      displaySize: '10.1 in', displayType: 'IPS LCD, Anti-Reflective, Touch',
+      refreshRate: '60', resolution: '1920 x 1200 pixels', ppi: '224',
+      chipset: 'Snapdragon 660', gpu: 'Qualcomm Adreno 512',
+      ram: '4 GB', storage: '32 GB',
+      rearCamera: '13MP', frontCamera: '5MP',
+      speakers: '스테레오', headphone: '있음',
+      battery: '6200 mAh', charging: '30W',
+      wlan: 'Wi-Fi 6', bluetooth: 'Bluetooth 5.0', nfc: '있음',
+      usb: 'USB-A, USB-C', sensors: 'Accelerometer, Gyroscope, Compass, Barometer',
+    },
+    'Toughbook FZ-B3 (B2B)': {
+      dimensions: '202.0 x 130.0 x 18.0 mm', weight: '390 g',
+      displaySize: '7.0 in', displayType: 'IPS LCD, Touch',
+      refreshRate: '60', resolution: '1200 x 800 pixels', ppi: '200',
+      chipset: 'Snapdragon 660', gpu: 'Qualcomm Adreno 512',
+      ram: '4 GB', storage: '32 GB',
+      rearCamera: '8MP', frontCamera: '5MP',
+      speakers: '모노', headphone: '있음',
+      battery: '4200 mAh', charging: '18W',
+      wlan: 'Wi-Fi 5', bluetooth: 'Bluetooth 5.0', nfc: '있음',
+      usb: 'USB-C', sensors: 'Accelerometer, Gyroscope, Compass',
+    },
+  },
+}
+
+const TABLET_LAUNCH_PRICE_DB = {
+  'Apple': {
+    'iPad Pro 13 (2025)':   { launch: '2025.10', price: '$1,299' },
+    'iPad Pro 11 (2025)':   { launch: '2025.10', price: '$999' },
+    'iPad Air 13 (2026)':   { launch: '2026.03', price: '$799' },
+    'iPad Air 11 (2026)':   { launch: '2026.03', price: '$599' },
+    'iPad (2025)':          { launch: '2025.03', price: '$349' },
+    'iPad mini (2024)':     { launch: '2024.10', price: '$499' },
+    'iPad Pro 13 (2024)':   { launch: '2024.05', price: '$1,299' },
+    'iPad Pro 11 (2024)':   { launch: '2024.05', price: '$999' },
+    'iPad Air 13 (2024)':   { launch: '2024.05', price: '$799' },
+    'iPad Air 11 (2024)':   { launch: '2024.05', price: '$599' },
+    'iPad Pro 12.9 (2022)': { launch: '2022.10', price: '$1,099' },
+    'iPad Pro 11 (2022)':   { launch: '2022.10', price: '$799' },
+    'iPad (2022)':          { launch: '2022.10', price: '$449' },
+    'iPad Air (2022)':      { launch: '2022.03', price: '$599' },
+    'iPad mini (2021)':     { launch: '2021.09', price: '$499' },
+  },
+  'Samsung': {
+    'Galaxy Tab S11 Ultra': { launch: '2025.09', price: '$1,199' },
+    'Galaxy Tab S11':       { launch: '2025.09', price: '$799' },
+    'Galaxy Tab S10 Ultra': { launch: '2024.10', price: '$1,199' },
+    'Galaxy Tab S10+':      { launch: '2024.10', price: '$999' },
+    'Galaxy Tab S10 FE':    { launch: '2025.04', price: '$499' },
+    'Galaxy Tab S9 Ultra':  { launch: '2023.08', price: '$1,199' },
+    'Galaxy Tab S9+':       { launch: '2023.08', price: '$999' },
+    'Galaxy Tab S9':        { launch: '2023.08', price: '$799' },
+    'Galaxy Tab S9 FE':     { launch: '2023.10', price: '$449' },
+    'Galaxy Tab A9+':       { launch: '2024.01', price: '$219' },
+    'Galaxy Tab A9':        { launch: '2023.10', price: '$159' },
+    'Galaxy Tab S8 Ultra':  { launch: '2022.02', price: '$1,099' },
+    'Galaxy Tab S8+':       { launch: '2022.02', price: '$899' },
+    'Galaxy Tab S8':        { launch: '2022.02', price: '$699' },
+  },
+  'Xiaomi': {
+    'Xiaomi Pad 7 Pro': { launch: '2025.03' },
+    'Xiaomi Pad 7':     { launch: '2025.03' },
+    'Xiaomi Pad 6 Pro': { launch: '2023.04' },
+    'Xiaomi Pad 6':     { launch: '2023.07' },
+    'Xiaomi Pad 5 Pro': { launch: '2021.08' },
+    'Xiaomi Pad 5':     { launch: '2021.09' },
+    'Redmi Pad Pro':    { launch: '2024.05' },
+    'Redmi Pad SE':     { launch: '2023.09' },
+    'Redmi Pad 2':      { launch: '2025.06' },
+  },
+  'Lenovo': {
+    'Tab Extreme':        { launch: '2023.06', price: '$949' },
+    'Tab P12 Pro':        { launch: '2022.01', price: '$629' },
+    'Tab P12':            { launch: '2023.07', price: '$350' },
+    'Tab P11 Pro Gen 2':  { launch: '2022.09', price: '$400' },
+    'Tab P11 Gen 2':      { launch: '2022.11', price: '$300' },
+    'Tab M11':            { launch: '2024.04', price: '$179' },
+    'Tab M10 Plus Gen 3': { launch: '2022.06', price: '$189' },
+  },
+  'Huawei': {
+    'MatePad Pro 13.2':      { launch: '2023.09' },
+    'MatePad Pro 11 (2024)': { launch: '2023.11' },
+    'MatePad 11.5 S':        { launch: '2024.05' },
+    'MatePad Air':           { launch: '2023.07' },
+    'MatePad 11 (2023)':     { launch: '2023.03' },
+  },
+  'Google': {
+    'Pixel Tablet (2023)': { launch: '2023.06', price: '$499' },
+  },
+  'OnePlus': {
+    'OnePlus Pad 2':  { launch: '2024.07', price: '$549' },
+    'OnePlus Pad Go': { launch: '2023.10' },
+    'OnePlus Pad':    { launch: '2023.04', price: '$479' },
+  },
+  'Sony': {
+    'Xperia Z4 Tablet': { launch: '2015.06' },
+  },
+  'Microsoft': {
+    'Surface Pro 11': { launch: '2024.06', price: '$1,299' },
+    'Surface Pro 10': { launch: '2024.03', price: '$1,599' },
+    'Surface Pro 9':  { launch: '2022.10', price: '$999' },
+    'Surface Go 4':   { launch: '2023.09', price: '$579' },
+  },
+}
+
 async function getSpecs(manufacturer, model) {
   const dsId = await getDsId(manufacturer, model)
   const specs = {}
@@ -219,6 +503,10 @@ async function getSpecs(manufacturer, model) {
       const imgMatch = html.match(/property="og:image"[^>]+content="([^"]+)"/)
       if (imgMatch && !imgMatch[1].includes('logo')) specs.imageUrl = imgMatch[1]
     }
+  } else if (FALLBACK_TABLET_SPECS[manufacturer]?.[model]) {
+    Object.assign(specs, FALLBACK_TABLET_SPECS[manufacturer][model])
+  } else if (FALLBACK_TABLET_SPECS_B2B[manufacturer]?.[model]) {
+    Object.assign(specs, FALLBACK_TABLET_SPECS_B2B[manufacturer][model])
   }
   if (specs.chipset) {
     const chipKey = Object.keys(CHIP_DB).find(k =>
@@ -229,6 +517,7 @@ async function getSpecs(manufacturer, model) {
       specs.singleCore = String(perf.single)
       specs.multiCore  = String(perf.multi)
       if (perf.npu) specs.npu = perf.npu
+      specs.benchmarkSource = 'Geekbench 6'
     }
     // Apple RAM 폴백: devicespecifications.com이 GB 대신 MHz만 기재하는 경우
     if (!specs.ram) {
@@ -237,6 +526,11 @@ async function getSpecs(manufacturer, model) {
       )
       if (appleKey) specs.ram = APPLE_RAM_FALLBACK[appleKey] + ' GB'
     }
+  }
+  // 출시일/가격 하드코딩 DB로 덮어씀 (devicespecifications.com은 가격 미제공)
+  const info = TABLET_LAUNCH_PRICE_DB[manufacturer]?.[model]
+  if (info) {
+    specs.launch = info.price ? `${info.launch} / ${info.price}~` : info.launch
   }
   return specs
 }
@@ -373,8 +667,15 @@ function parseDeviceSpecs(html, specs) {
   }
 
   // ── 밝기 ─────────────────────────────────────────────────────
-  const nitsM = html.match(/([\d,]+)\s*nits/i)
-  if (nitsM) specs.brightness = nitsM[1].replace(',', '') + ' nits'
+  const brightnessRow = tdGet('Brightness') || tdGet('Display brightness') || tdGet('Peak brightness')
+  if (brightnessRow) {
+    const bM = brightnessRow.match(/([\d,]+)\s*(?:nits|cd\/m)/i)
+    if (bM) specs.brightness = bM[1].replace(',', '') + ' nits'
+  }
+  if (!specs.brightness) {
+    const nitsM = html.match(/([\d,]+)\s*nits/i) || html.match(/([\d,]+)\s*cd\/m/i)
+    if (nitsM) specs.brightness = nitsM[1].replace(',', '') + ' nits'
+  }
 
   // ── NFC ──────────────────────────────────────────────────────
   const connRow = tdGet('Connectivity')
@@ -406,6 +707,19 @@ function parseDeviceSpecs(html, specs) {
   // ── 센서 ─────────────────────────────────────────────────────
   const sensorsRow = tdGet('Sensors')
   if (sensorsRow) specs.sensors = sensorsRow
+
+  // ── 배터리 사용 시간 ─────────────────────────────────────────
+  const batteryLifeRow = tdGet('Video playback time') || tdGet('Battery life') || tdGet('Music playback time')
+  if (batteryLifeRow) {
+    const hM = batteryLifeRow.match(/up to\s*(\d+)\s*h/i) || batteryLifeRow.match(/(\d+)\s*h/i)
+    if (hM) specs.batteryLife = hM[1] + 'h'
+  }
+
+  // ── 출시일 ───────────────────────────────────────────────────
+  const announcedRow = tdGet('Announced') || tdGet('Release date') || tdGet('Release Date')
+  if (announcedRow) {
+    specs.launch = announcedRow.replace(/^Available\.\s*Released?\s*/i, '').trim()
+  }
 }
 
 async function fetchHtml(url) {
@@ -420,4 +734,732 @@ async function fetchHtml(url) {
     if (!res.ok) return null
     return await res.text()
   } catch { return null }
+}
+
+// ══════════════════════════════════════════════════════════
+// PC / Laptop 섹션
+// ══════════════════════════════════════════════════════════
+
+const PC_PRODUCTS_JSON_URL = 'https://raw.githubusercontent.com/Dalbonz/tablet-compare/main/products_pc.json'
+
+const FALLBACK_PC_DB = {
+  'Apple':   [
+    { name: 'MacBook Air 13" (M4, 2025)' }, { name: 'MacBook Air 15" (M4, 2025)' },
+    { name: 'MacBook Air 13" (M3, 2024)' }, { name: 'MacBook Air 15" (M3, 2024)' },
+    { name: 'MacBook Pro 14" M4 (2024)' }, { name: 'MacBook Pro 14" M4 Pro (2024)' },
+    { name: 'MacBook Pro 14" M4 Max (2024)' },
+    { name: 'MacBook Pro 16" M4 Pro (2024)' }, { name: 'MacBook Pro 16" M4 Max (2024)' },
+  ],
+  'LG': [
+    { name: 'Gram 14 (2025)' }, { name: 'Gram 16 (2025)' }, { name: 'Gram 17 (2025)' },
+    { name: 'Gram Pro 14 (2025)' }, { name: 'Gram Pro 16 (2025)' },
+    { name: 'Gram Style 14 (2024)' }, { name: 'Gram Style 16 (2024)' },
+  ],
+  'Lenovo': [
+    { name: 'ThinkPad X1 Carbon Gen 13 (2025)' }, { name: 'ThinkPad X1 Yoga Gen 9 (2025)' },
+    { name: 'Yoga Slim 9i Gen 9 (2025)' }, { name: 'Yoga Pro 9i Gen 9 (2024)' },
+    { name: 'ThinkPad T14s Gen 6 (2024)' }, { name: 'IdeaPad Slim 5i Gen 9 (2024)' },
+    { name: 'Legion Slim 5i Gen 9 (2024)' },
+  ],
+  'Dell': [
+    { name: 'XPS 13 9340 (2024)' }, { name: 'XPS 14 9440 (2024)' },
+    { name: 'XPS 16 9640 (2024)' }, { name: 'Inspiron 14 Plus 7441 (2024)' },
+    { name: 'Latitude 7450 (2024)' }, { name: 'Alienware m16 R2 (2024)' },
+  ],
+  'HP': [
+    { name: 'Spectre x360 14 (2024)' }, { name: 'Spectre x360 16 (2024)' },
+    { name: 'Envy x360 14 (2024)' }, { name: 'OmniBook X 14 (2024)' },
+    { name: 'EliteBook 840 G11 (2024)' }, { name: 'OMEN 16 (2024)' },
+  ],
+  'ASUS': [
+    { name: 'ZenBook 14 OLED UX3405 (2024)' }, { name: 'ZenBook Pro 14 OLED UX6404 (2024)' },
+    { name: 'Vivobook Pro 16 OLED K6604 (2024)' }, { name: 'ROG Zephyrus G16 GU605 (2024)' },
+    { name: 'ProArt Studiobook 16 OLED H7604 (2024)' }, { name: 'ExpertBook B9 B9403 (2024)' },
+  ],
+  'Huawei': [
+    { name: 'MateBook X Pro (2024)' }, { name: 'MateBook 16s (2024)' },
+    { name: 'MateBook D16 (2024)' }, { name: 'MateBook D14 (2024)' },
+    { name: 'MateBook 14 (2024)' },
+  ],
+  'Xiaomi': [
+    { name: 'Book Pro 14 (2024)' }, { name: 'Book Pro 16 (2024)' },
+    { name: 'RedmiBook Pro 15 (2024)' }, { name: 'RedmiBook 16 (2024)' },
+    { name: 'RedmiBook 14 (2024)' },
+  ],
+  'Samsung': [
+    { name: 'Galaxy Book5 Pro 360 16" (2025)' }, { name: 'Galaxy Book5 Pro 16" (2025)' },
+    { name: 'Galaxy Book5 Pro 14" (2025)' }, { name: 'Galaxy Book4 Ultra (2024)' },
+    { name: 'Galaxy Book4 Pro 360 16" (2024)' }, { name: 'Galaxy Book4 Pro 16" (2024)' },
+    { name: 'Galaxy Book4 Pro 14" (2024)' }, { name: 'Galaxy Book4 Edge 16" (2024)' },
+    { name: 'Galaxy Book4 Edge 14" (2024)' },
+  ],
+}
+
+const FALLBACK_PC_SPECS = {
+  'Apple': {
+    'MacBook Air 13" (M4, 2025)': {
+      launch: '2025.03 / $1,099~', thicknessWeight: '11.3mm / 1.24kg',
+      cmfColor: 'Aluminum / Sky Blue, Starlight, Midnight, Rose',
+      display: '13.6", Liquid Retina, 2560x1664, 60Hz, 500nits',
+      audio: 'Four Speaker (Spatial Audio)', webcam: '12MP, Center Stage',
+      ap: 'Apple M4 (10-core CPU)', graphics: 'Apple M4 (10-core GPU)',
+      memory: '16/24/32GB LPDDR5', storage: '256GB/512GB/1/2TB SSD',
+      battery: '52.6Wh / 18h', adapter: '30W / 35W / 70W MagSafe 3',
+      ports: 'TBT4(2), MagSafe 3, 3.5mm', security: 'Touch ID',
+    },
+    'MacBook Air 15" (M4, 2025)': {
+      launch: '2025.03 / $1,299~', thicknessWeight: '11.5mm / 1.51kg',
+      cmfColor: 'Aluminum / Sky Blue, Starlight, Midnight, Rose',
+      display: '15.3", Liquid Retina, 2880x1864, 60Hz, 500nits',
+      audio: 'Six Speaker (Spatial Audio)', webcam: '12MP, Center Stage',
+      ap: 'Apple M4 (10-core CPU)', graphics: 'Apple M4 (10-core GPU)',
+      memory: '16/24/32GB LPDDR5', storage: '256GB/512GB/1/2TB SSD',
+      battery: '66.5Wh / 18h', adapter: '35W / 70W MagSafe 3',
+      ports: 'TBT4(2), MagSafe 3, 3.5mm', security: 'Touch ID',
+    },
+    'MacBook Air 13" (M3, 2024)': {
+      launch: '2024.03 / $1,099~', thicknessWeight: '11.3mm / 1.24kg',
+      cmfColor: 'Aluminum / Midnight, Starlight, Space Gray, Silver',
+      display: '13.6", Liquid Retina, 2560x1664, 60Hz, 500nits',
+      audio: 'Four Speaker (Spatial Audio)', webcam: '1080p FaceTime HD',
+      ap: 'Apple M3 (8-core CPU)', graphics: 'Apple M3 (10-core GPU)',
+      memory: '8/16/24GB LPDDR5', storage: '256GB/512GB/1/2TB SSD',
+      battery: '52.6Wh / 18h', adapter: '30W / 35W / 70W MagSafe 3',
+      ports: 'TBT3(2), MagSafe 3, 3.5mm', security: 'Touch ID',
+    },
+    'MacBook Air 15" (M3, 2024)': {
+      launch: '2024.03 / $1,299~', thicknessWeight: '11.5mm / 1.51kg',
+      cmfColor: 'Aluminum / Midnight, Starlight, Space Gray, Silver',
+      display: '15.3", Liquid Retina, 2880x1864, 60Hz, 500nits',
+      audio: 'Six Speaker (Spatial Audio)', webcam: '1080p FaceTime HD',
+      ap: 'Apple M3 (8-core CPU)', graphics: 'Apple M3 (10-core GPU)',
+      memory: '8/16/24GB LPDDR5', storage: '256GB/512GB/1/2TB SSD',
+      battery: '66.5Wh / 18h', adapter: '35W / 70W MagSafe 3',
+      ports: 'TBT3(2), MagSafe 3, 3.5mm', security: 'Touch ID',
+    },
+    'MacBook Pro 14" M4 (2024)': {
+      launch: '2024.11 / $1,599~', thicknessWeight: '15.5mm / 1.55kg',
+      cmfColor: 'Aluminum / Space Black, Silver',
+      display: '14.2", Liquid Retina XDR, 3024x1964, 120Hz, 1000nits(SDR), 1600nits(HDR)',
+      audio: 'Six Speaker (Spatial Audio)', webcam: '12MP, Center Stage',
+      ap: 'Apple M4 (10-core CPU)', graphics: 'Apple M4 (10-core GPU)',
+      memory: '16/24/32GB LPDDR5X', storage: '512GB/1/2TB SSD',
+      battery: '72.4Wh / 24h', adapter: '70W / 140W MagSafe 3',
+      ports: 'TBT5(3), HDMI 2.1, SDXC, MagSafe 3, 3.5mm', security: 'Touch ID',
+    },
+    'MacBook Pro 14" M4 Pro (2024)': {
+      launch: '2024.11 / $1,999~', thicknessWeight: '15.5mm / 1.62kg',
+      cmfColor: 'Aluminum / Space Black, Silver',
+      display: '14.2", Liquid Retina XDR, 3024x1964, 120Hz, 1000nits(SDR), 1600nits(HDR)',
+      audio: 'Six Speaker (Spatial Audio)', webcam: '12MP, Center Stage',
+      ap: 'Apple M4 Pro (14-core CPU)', graphics: 'Apple M4 Pro (20-core GPU)',
+      memory: '24/48GB LPDDR5X', storage: '512GB/1/2/4TB SSD',
+      battery: '72.4Wh / 22h', adapter: '96W / 140W MagSafe 3',
+      ports: 'TBT5(3), HDMI 2.1, SDXC, MagSafe 3, 3.5mm', security: 'Touch ID',
+    },
+    'MacBook Pro 14" M4 Max (2024)': {
+      launch: '2024.11 / $2,499~', thicknessWeight: '15.5mm / 1.62kg',
+      cmfColor: 'Aluminum / Space Black, Silver',
+      display: '14.2", Liquid Retina XDR, 3024x1964, 120Hz, 1000nits(SDR), 1600nits(HDR)',
+      audio: 'Six Speaker (Spatial Audio)', webcam: '12MP, Center Stage',
+      ap: 'Apple M4 Max (16-core CPU)', graphics: 'Apple M4 Max (40-core GPU)',
+      memory: '36/48/64/96/128GB LPDDR5X', storage: '512GB/1/2/4/8TB SSD',
+      battery: '72.4Wh / 18h', adapter: '140W MagSafe 3',
+      ports: 'TBT5(3), HDMI 2.1, SDXC, MagSafe 3, 3.5mm', security: 'Touch ID',
+    },
+    'MacBook Pro 16" M4 Pro (2024)': {
+      launch: '2024.11 / $2,499~', thicknessWeight: '16.8mm / 2.14kg',
+      cmfColor: 'Aluminum / Space Black, Silver',
+      display: '16.2", Liquid Retina XDR, 3456x2234, 120Hz, 1000nits(SDR), 1600nits(HDR)',
+      audio: 'Six Speaker (Spatial Audio)', webcam: '12MP, Center Stage',
+      ap: 'Apple M4 Pro (14-core CPU)', graphics: 'Apple M4 Pro (20-core GPU)',
+      memory: '24/48GB LPDDR5X', storage: '512GB/1/2/4TB SSD',
+      battery: '100Wh / 24h', adapter: '140W MagSafe 3',
+      ports: 'TBT5(3), HDMI 2.1, SDXC, MagSafe 3, 3.5mm', security: 'Touch ID',
+    },
+    'MacBook Pro 16" M4 Max (2024)': {
+      launch: '2024.11 / $3,499~', thicknessWeight: '16.8mm / 2.15kg',
+      cmfColor: 'Aluminum / Space Black, Silver',
+      display: '16.2", Liquid Retina XDR, 3456x2234, 120Hz, 1000nits(SDR), 1600nits(HDR)',
+      audio: 'Six Speaker (Spatial Audio)', webcam: '12MP, Center Stage',
+      ap: 'Apple M4 Max (16-core CPU)', graphics: 'Apple M4 Max (40-core GPU)',
+      memory: '48/64/96/128GB LPDDR5X', storage: '512GB/1/2/4/8TB SSD',
+      battery: '100Wh / 21h', adapter: '140W MagSafe 3',
+      ports: 'TBT5(3), HDMI 2.1, SDXC, MagSafe 3, 3.5mm', security: 'Touch ID',
+    },
+  },
+  'LG': {
+    'Gram 14 (2025)': {
+      launch: '2025.01 / $1,099~', thicknessWeight: '16.5mm / 0.98kg',
+      cmfColor: 'Magnesium Alloy / White, Charcoal Gray',
+      display: '14", IPS Anti-Glare, 1920x1200, 60Hz, 400nits',
+      audio: 'Stereo Speaker, DTS:X Ultra', webcam: '1080p FHD',
+      ap: 'Intel Core Ultra 7 258V', graphics: 'Intel Arc 140V',
+      memory: '16/32GB LPDDR5X', storage: '512GB/1TB NVMe SSD',
+      battery: '72Wh / 24h', adapter: '65W USB-C',
+      ports: 'TBT4(1), USB-C(1), USB-A(2), HDMI, SD, 3.5mm', security: 'Fingerprint',
+    },
+    'Gram 16 (2025)': {
+      launch: '2025.01 / $1,299~', thicknessWeight: '16.3mm / 1.19kg',
+      cmfColor: 'Magnesium Alloy / White, Charcoal Gray',
+      display: '16", IPS Anti-Glare, 2560x1600, 120Hz, 400nits',
+      audio: 'Stereo Speaker, DTS:X Ultra', webcam: '1080p FHD',
+      ap: 'Intel Core Ultra 7 258V', graphics: 'Intel Arc 140V',
+      memory: '16/32GB LPDDR5X', storage: '512GB/1TB NVMe SSD',
+      battery: '80Wh / 22h', adapter: '65W USB-C',
+      ports: 'TBT4(1), USB-C(1), USB-A(2), HDMI, SD, 3.5mm', security: 'Fingerprint',
+    },
+    'Gram 17 (2025)': {
+      launch: '2025.01 / $1,499~', thicknessWeight: '17.3mm / 1.35kg',
+      cmfColor: 'Magnesium Alloy / White, Charcoal Gray',
+      display: '17", IPS Anti-Glare, 2560x1600, 60Hz, 400nits',
+      audio: 'Stereo Speaker, DTS:X Ultra', webcam: '1080p FHD',
+      ap: 'Intel Core Ultra 7 258V', graphics: 'Intel Arc 140V',
+      memory: '16/32GB LPDDR5X', storage: '512GB/1TB NVMe SSD',
+      battery: '90Wh / 19h', adapter: '65W USB-C',
+      ports: 'TBT4(1), USB-C(1), USB-A(2), HDMI, SD, 3.5mm', security: 'Fingerprint',
+    },
+    'Gram Pro 14 (2025)': {
+      launch: '2025.01 / $1,499~', thicknessWeight: '15.8mm / 1.09kg',
+      cmfColor: 'Magnesium Alloy / White, Titan Black',
+      display: '14", OLED, 2880x1800, 120Hz, 400nits',
+      audio: 'Stereo Speaker, DTS:X Ultra', webcam: '1080p FHD',
+      ap: 'Intel Core Ultra 7 258V', graphics: 'Intel Arc 140V',
+      memory: '16/32GB LPDDR5X', storage: '1TB NVMe SSD',
+      battery: '72Wh / 20h', adapter: '65W USB-C',
+      ports: 'TBT4(2), USB-A(2), HDMI, SD, 3.5mm', security: 'Fingerprint',
+    },
+    'Gram Pro 16 (2025)': {
+      launch: '2025.01 / $1,799~', thicknessWeight: '15.8mm / 1.24kg',
+      cmfColor: 'Magnesium Alloy / White, Titan Black',
+      display: '16", OLED, 2880x1800, 120Hz, 400nits',
+      audio: 'Stereo Speaker, DTS:X Ultra', webcam: '1080p FHD',
+      ap: 'Intel Core Ultra 7 258V', graphics: 'Intel Arc 140V',
+      memory: '16/32GB LPDDR5X', storage: '1TB NVMe SSD',
+      battery: '80Wh / 18h', adapter: '65W USB-C',
+      ports: 'TBT4(2), USB-A(2), HDMI, SD, 3.5mm', security: 'Fingerprint',
+    },
+    'Gram Style 14 (2024)': {
+      launch: '2024.01 / $1,499~', thicknessWeight: '12.4mm / 0.999kg',
+      cmfColor: 'Aluminum / White, Opal, Black',
+      display: '14", OLED, 2880x1800, 90Hz, 400nits',
+      audio: 'Stereo Speaker', webcam: '1080p FHD',
+      ap: 'Intel Core Ultra 7 155H', graphics: 'Intel Arc (integrated)',
+      memory: '16/32GB LPDDR5', storage: '512GB/1TB NVMe SSD',
+      battery: '72Wh / 14h', adapter: '65W USB-C',
+      ports: 'TBT4(2), USB-A(2), HDMI, SD, 3.5mm', security: 'Fingerprint',
+    },
+    'Gram Style 16 (2024)': {
+      launch: '2024.01 / $1,699~', thicknessWeight: '12.4mm / 1.19kg',
+      cmfColor: 'Aluminum / White, Opal, Black',
+      display: '16", OLED 3K, 2880x1800, 120Hz, 400nits',
+      audio: 'Stereo Speaker', webcam: '1080p FHD',
+      ap: 'Intel Core Ultra 7 155H', graphics: 'Intel Arc (integrated)',
+      memory: '16/32GB LPDDR5', storage: '512GB/1TB NVMe SSD',
+      battery: '80Wh / 12h', adapter: '65W USB-C',
+      ports: 'TBT4(2), USB-A(2), HDMI, SD, 3.5mm', security: 'Fingerprint',
+    },
+  },
+  'Lenovo': {
+    'ThinkPad X1 Carbon Gen 13 (2025)': {
+      launch: '2025.01 / $1,699~', thicknessWeight: '14.9mm / 1.09kg',
+      cmfColor: 'Carbon Fiber + Magnesium / Black',
+      display: '14", IPS/OLED 2.8K, 90-120Hz, 400-1000nits',
+      audio: 'Four Speaker, Dolby Atmos', webcam: '1080p + IR',
+      ap: 'Intel Core Ultra 7 268V', graphics: 'Intel Arc 140V',
+      memory: '16/32/64GB LPDDR5X', storage: '256GB/512GB/1/2TB SSD',
+      battery: '57Wh / 15h', adapter: '65W / 140W USB-C',
+      ports: 'TBT5(2), USB-A(2), HDMI 2.1, SD, 3.5mm',
+      security: 'Fingerprint, IR Camera, TPM 2.0',
+    },
+    'ThinkPad X1 Yoga Gen 9 (2025)': {
+      launch: '2025.01 / $1,799~', thicknessWeight: '15.9mm / 1.31kg',
+      cmfColor: 'Aluminum + Magnesium / Black',
+      display: '14", OLED 2.8K Touch, 90Hz, 500nits(SDR), 1000nits(HDR)',
+      audio: 'Four Speaker, Dolby Atmos', webcam: '1080p + IR',
+      ap: 'Intel Core Ultra 7 268V', graphics: 'Intel Arc 140V',
+      memory: '16/32/64GB LPDDR5X', storage: '256GB/512GB/1/2TB SSD',
+      battery: '57Wh / 13h', adapter: '65W / 140W USB-C',
+      ports: 'TBT5(2), USB-A(2), HDMI 2.1, SD, 3.5mm',
+      security: 'Fingerprint, IR Camera, TPM 2.0',
+    },
+    'Yoga Slim 9i Gen 9 (2025)': {
+      launch: '2025.01 / $1,499~', thicknessWeight: '14.9mm / 1.28kg',
+      cmfColor: 'Glass + Aluminum / Luna Grey, Cosmic Blue',
+      display: '14.5", OLED 2.8K, 120Hz, 500nits(SDR), 1000nits(HDR)',
+      audio: 'Four Speaker, Dolby Atmos', webcam: '1080p + IR',
+      ap: 'Intel Core Ultra 7 258V', graphics: 'Intel Arc 140V',
+      memory: '32/64GB LPDDR5X', storage: '1/2TB SSD',
+      battery: '75Wh / 14h', adapter: '65W USB-C',
+      ports: 'TBT5(2), USB-A, HDMI, 3.5mm', security: 'Fingerprint, IR Camera',
+    },
+    'Yoga Pro 9i Gen 9 (2024)': {
+      launch: '2024.05 / $1,899~', thicknessWeight: '17.6mm / 2.0kg',
+      cmfColor: 'Aluminum / Luna Grey',
+      display: '16", Mini-LED, 3200x2000, 165Hz, 1200nits(SDR), 1600nits(HDR)',
+      audio: 'Four Speaker, Dolby Atmos', webcam: '1080p + IR',
+      ap: 'Intel Core Ultra 9 185H', graphics: 'NVIDIA GeForce RTX 4060',
+      memory: '32/64GB DDR5', storage: '1/2TB SSD',
+      battery: '99.5Wh / 10h', adapter: '140W USB-C',
+      ports: 'TBT4(2), USB-A(2), USB-C, HDMI 2.1, SD, 3.5mm',
+      security: 'Fingerprint, IR Camera',
+    },
+    'ThinkPad T14s Gen 6 (2024)': {
+      launch: '2024.04 / $1,299~', thicknessWeight: '16.9mm / 1.21kg',
+      cmfColor: 'Magnesium + Aluminum / Black',
+      display: '14", IPS, 2560x1600, 60Hz, 400nits',
+      audio: 'Stereo Speaker, Dolby Atmos', webcam: '1080p + IR',
+      ap: 'Intel Core Ultra 7 165H', graphics: 'Intel Arc (integrated)',
+      memory: '16/32/64GB LPDDR5X', storage: '256GB/512GB/1/2TB SSD',
+      battery: '58Wh / 14h', adapter: '65W USB-C',
+      ports: 'TBT4(2), USB-A(2), HDMI 2.1, MicroSD, 3.5mm',
+      security: 'Fingerprint, IR Camera, TPM 2.0',
+    },
+    'IdeaPad Slim 5i Gen 9 (2024)': {
+      launch: '2024.07 / $799~', thicknessWeight: '17.9mm / 1.46kg',
+      cmfColor: 'Aluminum / Cosmic Blue, Platinum Grey',
+      display: '14", OLED 2.8K, 90Hz, 400nits',
+      audio: 'Stereo Speaker, Dolby Atmos', webcam: '1080p',
+      ap: 'Intel Core Ultra 5 125H', graphics: 'Intel Arc (integrated)',
+      memory: '16/32GB LPDDR5', storage: '512GB/1TB SSD',
+      battery: '75Wh / 13h', adapter: '65W USB-C',
+      ports: 'TBT4(1), USB-A(2), USB-C, HDMI, SD, 3.5mm',
+      security: 'Fingerprint',
+    },
+    'Legion Slim 5i Gen 9 (2024)': {
+      launch: '2024.05 / $1,199~', thicknessWeight: '19.9mm / 2.0kg',
+      cmfColor: 'Aluminum / Misty Grey',
+      display: '16", IPS, 2560x1600, 165Hz, 500nits',
+      audio: 'Four Speaker, Nahimic', webcam: '1080p',
+      ap: 'Intel Core Ultra 7 155H', graphics: 'NVIDIA GeForce RTX 4060',
+      memory: '16/32GB DDR5', storage: '512GB/1/2TB SSD',
+      battery: '99.9Wh / 7h', adapter: '230W USB-C/barrel',
+      ports: 'TBT4(1), USB-A(3), USB-C, HDMI 2.1, SD, 3.5mm',
+      security: 'Fingerprint',
+    },
+  },
+  'Dell': {
+    'XPS 13 9340 (2024)': {
+      launch: '2024.01 / $1,299~', thicknessWeight: '14.8mm / 1.17kg',
+      cmfColor: 'Machined Aluminum / Sky, Platinum, Graphite',
+      display: '13.4", OLED 2.8K, 60Hz, 400nits',
+      audio: 'Four Speaker, Waves MaxxAudio', webcam: '1080p + IR',
+      ap: 'Intel Core Ultra 7 165H', graphics: 'Intel Arc (integrated)',
+      memory: '16/32/64GB LPDDR5X', storage: '512GB/1/2TB SSD',
+      battery: '54.7Wh / 13h', adapter: '60W USB-C',
+      ports: 'TBT4(2), 3.5mm', security: 'Fingerprint, IR Camera',
+    },
+    'XPS 14 9440 (2024)': {
+      launch: '2024.01 / $1,699~', thicknessWeight: '18.0mm / 1.63kg',
+      cmfColor: 'Machined Aluminum / Platinum',
+      display: '14.5", OLED 2.8K, 120Hz, 500nits(SDR), 1000nits(HDR)',
+      audio: 'Four Speaker, Waves MaxxAudio', webcam: '1080p + IR',
+      ap: 'Intel Core Ultra 7 155H', graphics: 'NVIDIA GeForce RTX 4050',
+      memory: '16/32/64GB LPDDR5X', storage: '512GB/1/2TB SSD',
+      battery: '69.5Wh / 13h', adapter: '90W USB-C',
+      ports: 'TBT4(2), USB-A, SDXC, 3.5mm', security: 'Fingerprint, IR Camera',
+    },
+    'XPS 16 9640 (2024)': {
+      launch: '2024.01 / $1,999~', thicknessWeight: '20.9mm / 1.84kg',
+      cmfColor: 'Machined Aluminum / Platinum',
+      display: '16.3", OLED 3.2K, 120Hz, 500nits(SDR), 1000nits(HDR)',
+      audio: 'Six Speaker, Waves MaxxAudio', webcam: '1080p + IR',
+      ap: 'Intel Core Ultra 9 185H', graphics: 'NVIDIA GeForce RTX 4060',
+      memory: '32/64GB DDR5', storage: '1/2/4TB SSD',
+      battery: '99.5Wh / 13h', adapter: '130W USB-C',
+      ports: 'TBT4(2), USB-A, SDXC, 3.5mm', security: 'Fingerprint, IR Camera',
+    },
+    'Inspiron 14 Plus 7441 (2024)': {
+      launch: '2024.06 / $999~', thicknessWeight: '16.8mm / 1.36kg',
+      cmfColor: 'Aluminum / Ice Blue, Platinum Silver',
+      display: '14", IPS 2K, 60Hz, 300nits',
+      audio: 'Stereo Speaker', webcam: '1080p',
+      ap: 'Snapdragon X Plus', graphics: 'Qualcomm Adreno X1-45',
+      memory: '16/32/64GB LPDDR5X', storage: '512GB/1TB SSD',
+      battery: '54Wh / 22h', adapter: '65W USB-C',
+      ports: 'USB4(2), USB-A, SD, 3.5mm', security: 'Fingerprint',
+    },
+    'Latitude 7450 (2024)': {
+      launch: '2024.04 / $1,499~', thicknessWeight: '16.6mm / 1.21kg',
+      cmfColor: 'Aluminum / Titan Gray',
+      display: '14", IPS, 1920x1200, 60Hz, 400nits',
+      audio: 'Stereo Speaker, Waves MaxxAudio', webcam: '2MP 1080p + IR',
+      ap: 'Intel Core Ultra 7 165H', graphics: 'Intel Arc (integrated)',
+      memory: '16/32/64GB LPDDR5', storage: '256GB/512GB/1/2TB SSD',
+      battery: '64Wh / 14h', adapter: '65W USB-C',
+      ports: 'TBT4(2), USB-A(2), HDMI 2.1, SD, 3.5mm',
+      security: 'Fingerprint, IR Camera, Smart Card, TPM 2.0',
+    },
+    'Alienware m16 R2 (2024)': {
+      launch: '2024.01 / $2,299~', thicknessWeight: '25.4mm / 3.28kg',
+      cmfColor: 'Aluminum / Dark Metallic Moon',
+      display: '16", IPS QHD+, 165Hz, 500nits',
+      audio: 'Four Speaker, Dolby Atmos', webcam: '1080p + IR',
+      ap: 'Intel Core Ultra 9 185H', graphics: 'NVIDIA GeForce RTX 4090',
+      memory: '16/32/64GB DDR5', storage: '1/2TB SSD',
+      battery: '90Wh / 6h', adapter: '330W barrel',
+      ports: 'TBT4(1), USB-A(4), USB-C, HDMI 2.1, RJ45, 3.5mm',
+      security: 'Fingerprint',
+    },
+  },
+  'HP': {
+    'Spectre x360 14 (2024)': {
+      launch: '2024.03 / $1,499~', thicknessWeight: '16.5mm / 1.41kg',
+      cmfColor: 'Aluminum / Nightfall Black, Ceramic White',
+      display: '14", OLED 2.8K Touch, 120Hz, 500nits(SDR), 1000nits(HDR)',
+      audio: 'Four Speaker, Bang & Olufsen', webcam: '5MP 2K + IR',
+      ap: 'Intel Core Ultra 7 165U', graphics: 'Intel Arc (integrated)',
+      memory: '16/32GB LPDDR5', storage: '512GB/1/2TB SSD',
+      battery: '64Wh / 17h', adapter: '65W USB-C',
+      ports: 'TBT4(2), USB-A, 3.5mm', security: 'Fingerprint, IR Camera',
+    },
+    'Spectre x360 16 (2024)': {
+      launch: '2024.03 / $1,799~', thicknessWeight: '19.6mm / 1.93kg',
+      cmfColor: 'Aluminum / Nightfall Black, Ceramic White',
+      display: '16", OLED 2.8K Touch, 120Hz, 500nits(SDR), 1000nits(HDR)',
+      audio: 'Four Speaker, Bang & Olufsen', webcam: '9MP 4K + IR',
+      ap: 'Intel Core Ultra 7 165H', graphics: 'Intel Arc (integrated)',
+      memory: '16/32/64GB LPDDR5', storage: '512GB/1/2TB SSD',
+      battery: '83Wh / 14h', adapter: '95W USB-C',
+      ports: 'TBT4(2), USB-A, HDMI, SD, 3.5mm', security: 'Fingerprint, IR Camera',
+    },
+    'Envy x360 14 (2024)': {
+      launch: '2024.05 / $999~', thicknessWeight: '17.4mm / 1.57kg',
+      cmfColor: 'Aluminum / Meteor Silver',
+      display: '14", OLED 2.8K Touch, 120Hz, 500nits',
+      audio: 'Stereo Speaker, Bang & Olufsen', webcam: '5MP 1080p + IR',
+      ap: 'AMD Ryzen 7 8840HS', graphics: 'AMD Radeon 780M',
+      memory: '16/32GB LPDDR5', storage: '512GB/1TB SSD',
+      battery: '59.5Wh / 13h', adapter: '65W USB-C',
+      ports: 'USB4(1), USB-A(2), USB-C, HDMI, SD, 3.5mm',
+      security: 'Fingerprint, IR Camera',
+    },
+    'OmniBook X 14 (2024)': {
+      launch: '2024.07 / $1,099~', thicknessWeight: '14.4mm / 1.34kg',
+      cmfColor: 'Aluminum / Meteor Silver',
+      display: '14", IPS 2.2K, 60Hz, 300nits',
+      audio: 'Stereo Speaker, Bang & Olufsen', webcam: '5MP 1080p + IR',
+      ap: 'Snapdragon X Elite', graphics: 'Qualcomm Adreno X1-85',
+      memory: '16/32/64GB LPDDR5X', storage: '512GB/1TB SSD',
+      battery: '59Wh / 26h', adapter: '65W USB-C',
+      ports: 'USB4(2), USB-A, 3.5mm', security: 'Fingerprint, IR Camera',
+    },
+    'EliteBook 840 G11 (2024)': {
+      launch: '2024.04 / $1,299~', thicknessWeight: '16.7mm / 1.28kg',
+      cmfColor: 'Aluminum / Silver',
+      display: '14", IPS WUXGA, 60Hz, 400nits',
+      audio: 'Stereo Speaker, Bang & Olufsen', webcam: '9MP 4K + IR',
+      ap: 'Intel Core Ultra 7 165U', graphics: 'Intel Arc (integrated)',
+      memory: '16/32/64GB DDR5', storage: '256GB/512GB/1/2TB SSD',
+      battery: '51Wh / 14h', adapter: '65W USB-C',
+      ports: 'TBT4(2), USB-A(2), HDMI, SD, 3.5mm',
+      security: 'Fingerprint, IR Camera, Smart Card, TPM 2.0',
+    },
+    'OMEN 16 (2024)': {
+      launch: '2024.05 / $1,399~', thicknessWeight: '22.4mm / 2.4kg',
+      cmfColor: 'Aluminum / Mica Silver',
+      display: '16.1", IPS QHD, 240Hz, 500nits',
+      audio: 'Four Speaker, Bang & Olufsen', webcam: '5MP 1080p + IR',
+      ap: 'Intel Core Ultra 7 155H', graphics: 'NVIDIA GeForce RTX 4070',
+      memory: '16/32GB DDR5', storage: '512GB/1/2TB SSD',
+      battery: '83Wh / 7h', adapter: '200W barrel',
+      ports: 'TBT4(1), USB-A(3), USB-C, HDMI 2.1, SD, RJ45, 3.5mm',
+      security: 'Fingerprint',
+    },
+  },
+  'ASUS': {
+    'ZenBook 14 OLED UX3405 (2024)': {
+      launch: '2024.05 / $999~', thicknessWeight: '14.9mm / 1.2kg',
+      cmfColor: 'Aluminum / Ponder Blue, Jasper Grey, Platinum White',
+      display: '14", OLED 2.8K, 120Hz, 550nits',
+      audio: 'Stereo Speaker, Harman Kardon', webcam: '1080p + IR',
+      ap: 'Intel Core Ultra 7 155H', graphics: 'Intel Arc (integrated)',
+      memory: '16/32GB LPDDR5X', storage: '512GB/1TB SSD',
+      battery: '75Wh / 15h', adapter: '65W USB-C',
+      ports: 'TBT4(2), USB-A(2), HDMI 2.1, SD, 3.5mm',
+      security: 'Fingerprint, IR Camera',
+    },
+    'ZenBook Pro 14 OLED UX6404 (2024)': {
+      launch: '2024.03 / $1,499~', thicknessWeight: '18.9mm / 1.65kg',
+      cmfColor: 'Aluminum / Tech Black',
+      display: '14.5", OLED 2.8K Touch, 120Hz, 550nits',
+      audio: 'Stereo Speaker, Harman Kardon, Dolby Atmos', webcam: '1080p + IR',
+      ap: 'Intel Core Ultra 9 185H', graphics: 'NVIDIA GeForce RTX 4060',
+      memory: '32GB DDR5', storage: '1TB SSD',
+      battery: '76Wh / 10h', adapter: '120W USB-C',
+      ports: 'TBT4(2), USB-A(2), HDMI 2.1, SD, 3.5mm',
+      security: 'Fingerprint, IR Camera',
+    },
+    'Vivobook Pro 16 OLED K6604 (2024)': {
+      launch: '2024.07 / $1,299~', thicknessWeight: '18.9mm / 1.88kg',
+      cmfColor: 'Aluminum / Cool Silver, Quiet Blue',
+      display: '16", OLED 3.2K, 120Hz, 550nits',
+      audio: 'Four Speaker, Harman Kardon, Dolby Atmos', webcam: '1080p + IR',
+      ap: 'Intel Core Ultra 9 185H', graphics: 'NVIDIA GeForce RTX 4060',
+      memory: '16/32GB DDR5', storage: '512GB/1TB SSD',
+      battery: '96Wh / 9h', adapter: '150W USB-C',
+      ports: 'TBT4(1), USB-A(3), USB-C, HDMI 2.1, SD, 3.5mm',
+      security: 'Fingerprint',
+    },
+    'ROG Zephyrus G16 GU605 (2024)': {
+      launch: '2024.03 / $1,999~', thicknessWeight: '19.9mm / 1.85kg',
+      cmfColor: 'Aluminum / Eclipse Gray, Platinum White',
+      display: '16", OLED 2.5K, 240Hz, 500nits(SDR), 1000nits(HDR)',
+      audio: 'Quad Speaker, Dolby Atmos', webcam: '1080p + IR',
+      ap: 'Intel Core Ultra 9 185H', graphics: 'NVIDIA GeForce RTX 4090',
+      memory: '32/64GB DDR5', storage: '1/2TB SSD',
+      battery: '90Wh / 10h', adapter: '240W barrel',
+      ports: 'TBT4(1), USB-A(4), USB-C, HDMI 2.1, SD, 3.5mm',
+      security: 'Fingerprint',
+    },
+    'ProArt Studiobook 16 OLED H7604 (2024)': {
+      launch: '2024.01 / $2,999~', thicknessWeight: '18.9mm / 1.85kg',
+      cmfColor: 'Aluminum / Tech Black',
+      display: '16", OLED 3.2K Touch, 120Hz, 550nits(SDR), 1000nits(HDR)',
+      audio: 'Four Speaker, Dolby Atmos', webcam: '1080p + IR',
+      ap: 'Intel Core Ultra 9 185H', graphics: 'NVIDIA GeForce RTX 4090',
+      memory: '32/64GB DDR5', storage: '1/2TB SSD',
+      battery: '96Wh / 8h', adapter: '240W barrel',
+      ports: 'TBT4(2), USB-A(3), USB-C, HDMI 2.1, SD, 3.5mm',
+      security: 'Fingerprint, IR Camera',
+    },
+    'ExpertBook B9 B9403 (2024)': {
+      launch: '2024.01 / $1,699~', thicknessWeight: '14.9mm / 0.99kg',
+      cmfColor: 'Magnesium-Aluminum Alloy / Star Black',
+      display: '14", OLED 2.8K, 60Hz, 500nits',
+      audio: 'Stereo Speaker, Harman Kardon', webcam: '1080p + IR',
+      ap: 'Intel Core Ultra 7 165U', graphics: 'Intel Arc (integrated)',
+      memory: '16/32GB LPDDR5', storage: '512GB/1TB SSD',
+      battery: '75Wh / 16h', adapter: '65W USB-C',
+      ports: 'TBT4(2), USB-A(2), HDMI 2.1, 3.5mm',
+      security: 'Fingerprint, IR Camera, TPM 2.0',
+    },
+  },
+  'Huawei': {
+    'MateBook X Pro (2024)': {
+      launch: '2024.04 / $1,799~', thicknessWeight: '15.6mm / 1.26kg',
+      cmfColor: 'Aluminum / Space Gray, Space White, Ink Blue',
+      display: '14.2", OLED 3.1K Touch, 90Hz, 600nits',
+      audio: 'Six Speaker, Huawei Sound', webcam: '1080p + IR',
+      ap: 'Intel Core Ultra 7 155H', graphics: 'Intel Arc (integrated)',
+      memory: '16/32/64GB LPDDR5', storage: '1/2TB SSD',
+      battery: '70Wh / 16h', adapter: '90W USB-C',
+      ports: 'TBT4(2), USB-C, 3.5mm', security: 'Fingerprint',
+    },
+    'MateBook 16s (2024)': {
+      launch: '2024.04 / $1,599~', thicknessWeight: '17.4mm / 1.75kg',
+      cmfColor: 'Aluminum / Space Gray',
+      display: '16", IPS 2.5K Touch, 165Hz, 500nits',
+      audio: 'Six Speaker, Huawei Sound', webcam: '1080p + IR',
+      ap: 'Intel Core Ultra 9 185H', graphics: 'Intel Arc (integrated)',
+      memory: '16/32GB DDR5', storage: '1TB SSD',
+      battery: '84Wh / 12h', adapter: '135W USB-C',
+      ports: 'TBT4(2), USB-A(3), HDMI 2.1, SD, 3.5mm', security: 'Fingerprint',
+    },
+    'MateBook D16 (2024)': {
+      launch: '2024.01 / $899~', thicknessWeight: '17.9mm / 1.68kg',
+      cmfColor: 'Aluminum / Space Gray',
+      display: '16", IPS 1920x1200, 60Hz, 300nits',
+      audio: 'Stereo Speaker', webcam: '1080p',
+      ap: 'Intel Core Ultra 5 125H', graphics: 'Intel Arc (integrated)',
+      memory: '16/32GB DDR5', storage: '512GB/1TB SSD',
+      battery: '60Wh / 12h', adapter: '65W USB-C',
+      ports: 'TBT4(1), USB-A(3), HDMI, SD, 3.5mm', security: 'Fingerprint',
+    },
+    'MateBook D14 (2024)': {
+      launch: '2024.01 / $799~', thicknessWeight: '15.9mm / 1.38kg',
+      cmfColor: 'Aluminum / Space Gray',
+      display: '14", IPS 1920x1080, 60Hz, 300nits',
+      audio: 'Stereo Speaker', webcam: '1080p',
+      ap: 'Intel Core Ultra 5 125H', graphics: 'Intel Arc (integrated)',
+      memory: '16/32GB DDR5', storage: '512GB SSD',
+      battery: '56Wh / 11h', adapter: '65W USB-C',
+      ports: 'TBT4(1), USB-A(3), HDMI, SD, 3.5mm', security: 'Fingerprint',
+    },
+    'MateBook 14 (2024)': {
+      launch: '2024.04 / $1,099~', thicknessWeight: '15.4mm / 1.44kg',
+      cmfColor: 'Aluminum / Space Gray, Space White',
+      display: '14.2", IPS 2.5K, 60Hz, 400nits',
+      audio: 'Stereo Speaker', webcam: '1080p',
+      ap: 'Intel Core Ultra 5 125H', graphics: 'Intel Arc (integrated)',
+      memory: '16/32GB DDR5', storage: '512GB/1TB SSD',
+      battery: '70Wh / 14h', adapter: '90W USB-C',
+      ports: 'TBT4(1), USB-A(2), HDMI, SD, 3.5mm', security: 'Fingerprint',
+    },
+  },
+  'Xiaomi': {
+    'Book Pro 14 (2024)': {
+      launch: '2024.04 / $1,099~', thicknessWeight: '14.5mm / 1.26kg',
+      cmfColor: 'Aluminum / Silver',
+      display: '14.5", OLED 2.8K, 144Hz, 600nits',
+      audio: 'Four Speaker, Dolby Atmos', webcam: '1080p',
+      ap: 'Intel Core Ultra 7 155H', graphics: 'Intel Arc (integrated)',
+      memory: '32GB LPDDR5', storage: '1TB SSD',
+      battery: '70Wh / 15h', adapter: '65W USB-C',
+      ports: 'TBT4(2), USB-A, HDMI, SD, 3.5mm', security: 'Fingerprint',
+    },
+    'Book Pro 16 (2024)': {
+      launch: '2024.04 / $1,299~', thicknessWeight: '16.9mm / 1.6kg',
+      cmfColor: 'Aluminum / Silver',
+      display: '16", OLED 3.2K, 120Hz, 600nits',
+      audio: 'Four Speaker, Dolby Atmos', webcam: '1080p',
+      ap: 'Intel Core Ultra 7 155H', graphics: 'Intel Arc (integrated)',
+      memory: '32GB LPDDR5', storage: '1TB SSD',
+      battery: '80Wh / 13h', adapter: '65W USB-C',
+      ports: 'TBT4(2), USB-A(2), HDMI, SD, 3.5mm', security: 'Fingerprint',
+    },
+    'RedmiBook Pro 15 (2024)': {
+      launch: '2024.04 / $899~', thicknessWeight: '17.9mm / 1.6kg',
+      cmfColor: 'Aluminum / Silver',
+      display: '15.6", OLED 2.8K, 120Hz, 600nits',
+      audio: 'Four Speaker, Dolby Atmos', webcam: '1080p',
+      ap: 'Intel Core Ultra 5 125H', graphics: 'Intel Arc (integrated)',
+      memory: '16/32GB DDR5', storage: '512GB/1TB SSD',
+      battery: '70Wh / 12h', adapter: '65W USB-C',
+      ports: 'TBT4(1), USB-A(2), USB-C, HDMI, SD, 3.5mm', security: 'Fingerprint',
+    },
+    'RedmiBook 16 (2024)': {
+      launch: '2024.04 / $699~', thicknessWeight: '17.9mm / 1.78kg',
+      cmfColor: 'Aluminum / Silver, Gray',
+      display: '16", IPS 2.5K, 120Hz, 400nits',
+      audio: 'Stereo Speaker', webcam: '720p',
+      ap: 'Intel Core Ultra 5 125H', graphics: 'Intel Arc (integrated)',
+      memory: '16GB DDR5', storage: '512GB SSD',
+      battery: '72Wh / 12h', adapter: '65W USB-C',
+      ports: 'USB-C(2), USB-A(2), HDMI, SD, 3.5mm', security: 'Fingerprint',
+    },
+    'RedmiBook 14 (2024)': {
+      launch: '2024.01 / $599~', thicknessWeight: '16.9mm / 1.45kg',
+      cmfColor: 'Aluminum / Silver',
+      display: '14", IPS 2K, 120Hz, 400nits',
+      audio: 'Stereo Speaker', webcam: '720p',
+      ap: 'Intel Core 5 120U / Ryzen 5 8500U', graphics: 'Intel Graphics / AMD Radeon',
+      memory: '16GB DDR5', storage: '512GB SSD',
+      battery: '56Wh / 12h', adapter: '65W USB-C',
+      ports: 'USB-C(2), USB-A(2), HDMI, SD, 3.5mm', security: 'Fingerprint',
+    },
+  },
+  'Samsung': {
+    'Galaxy Book5 Pro 360 16" (2025)': {
+      launch: '2025.01 / $1,699~', thicknessWeight: '12.3mm / 1.70kg',
+      cmfColor: 'Aluminum + Glass / Moonstone Gray',
+      display: '16", AMOLED 2.8K, 2880x1800, 120Hz, 500nits Touch',
+      audio: 'AKG Stereo Speaker, Dolby Atmos', webcam: '1080p + IR',
+      ap: 'Snapdragon X Elite X1E-80-100', graphics: 'Qualcomm Adreno X1-85',
+      memory: '16/32GB LPDDR5X', storage: '512GB/1TB NVMe SSD',
+      battery: '76Wh / 22h', adapter: '65W USB-C',
+      ports: 'USB4(2), USB-A(2), HDMI 2.1, microSD, 3.5mm', security: 'Fingerprint, IR Camera',
+    },
+    'Galaxy Book5 Pro 16" (2025)': {
+      launch: '2025.01 / $1,599~', thicknessWeight: '14.9mm / 1.73kg',
+      cmfColor: 'Aluminum / Moonstone Gray, Silver Blue',
+      display: '16", AMOLED 2.8K, 2880x1800, 120Hz, 500nits',
+      audio: 'AKG Stereo Speaker, Dolby Atmos', webcam: '1080p + IR',
+      ap: 'Intel Core Ultra 7 258V', graphics: 'Intel Arc 140V',
+      memory: '16/32GB LPDDR5X', storage: '512GB/1TB NVMe SSD',
+      battery: '76Wh / 25h', adapter: '65W USB-C',
+      ports: 'TBT4(2), USB-A(2), HDMI 2.1, microSD, 3.5mm', security: 'Fingerprint, IR Camera',
+    },
+    'Galaxy Book5 Pro 14" (2025)': {
+      launch: '2025.01 / $1,399~', thicknessWeight: '12.3mm / 1.23kg',
+      cmfColor: 'Aluminum / Moonstone Gray, Silver Blue',
+      display: '14", AMOLED 2.8K, 2880x1800, 120Hz, 500nits',
+      audio: 'AKG Stereo Speaker, Dolby Atmos', webcam: '1080p + IR',
+      ap: 'Intel Core Ultra 7 258V / Snapdragon X Elite', graphics: 'Intel Arc 140V / Adreno X1-85',
+      memory: '16/32GB LPDDR5X', storage: '512GB/1TB NVMe SSD',
+      battery: '63Wh / 25h', adapter: '65W USB-C',
+      ports: 'TBT4(2), USB-A, HDMI 2.1, microSD, 3.5mm', security: 'Fingerprint, IR Camera',
+    },
+    'Galaxy Book4 Ultra (2024)': {
+      launch: '2024.03 / $2,499~', thicknessWeight: '16.5mm / 1.86kg',
+      cmfColor: 'Aluminum / Moonstone Gray, Platinum Silver',
+      display: '16", AMOLED 3.2K, 2880x1800, 120Hz, 500nits',
+      audio: 'AKG Four Speaker, Dolby Atmos', webcam: '1080p + IR',
+      ap: 'Intel Core Ultra 9 185H', graphics: 'NVIDIA GeForce RTX 4050',
+      memory: '16/32/64GB DDR5', storage: '512GB/1TB/2TB NVMe SSD',
+      battery: '76Wh / 13h', adapter: '140W USB-C',
+      ports: 'TBT4(2), USB-A(2), HDMI 2.1, microSD, 3.5mm', security: 'Fingerprint, IR Camera',
+    },
+    'Galaxy Book4 Pro 360 16" (2024)': {
+      launch: '2024.03 / $1,699~', thicknessWeight: '13.2mm / 1.75kg',
+      cmfColor: 'Aluminum + Glass / Moonstone Gray, Platinum Silver',
+      display: '16", AMOLED 2.8K, 2880x1800, 120Hz, 500nits Touch',
+      audio: 'AKG Four Speaker, Dolby Atmos', webcam: '1080p + IR',
+      ap: 'Intel Core Ultra 7 165H', graphics: 'Intel Arc (integrated)',
+      memory: '16/32GB LPDDR5', storage: '512GB/1TB NVMe SSD',
+      battery: '76Wh / 21h', adapter: '65W USB-C',
+      ports: 'TBT4(2), USB-A(2), HDMI 2.1, microSD, 3.5mm', security: 'Fingerprint, IR Camera',
+    },
+    'Galaxy Book4 Pro 16" (2024)': {
+      launch: '2024.03 / $1,499~', thicknessWeight: '14.9mm / 1.78kg',
+      cmfColor: 'Aluminum / Moonstone Gray, Platinum Silver',
+      display: '16", AMOLED 2.8K, 2880x1800, 120Hz, 500nits',
+      audio: 'AKG Four Speaker, Dolby Atmos', webcam: '1080p + IR',
+      ap: 'Intel Core Ultra 7 165H', graphics: 'Intel Arc (integrated)',
+      memory: '16/32GB LPDDR5', storage: '512GB/1TB NVMe SSD',
+      battery: '76Wh / 22h', adapter: '65W USB-C',
+      ports: 'TBT4(2), USB-A(2), HDMI 2.1, microSD, 3.5mm', security: 'Fingerprint, IR Camera',
+    },
+    'Galaxy Book4 Pro 14" (2024)': {
+      launch: '2024.03 / $1,349~', thicknessWeight: '12.5mm / 1.23kg',
+      cmfColor: 'Aluminum / Moonstone Gray, Platinum Silver',
+      display: '14", AMOLED 2.8K, 2880x1800, 120Hz, 500nits',
+      audio: 'AKG Stereo Speaker, Dolby Atmos', webcam: '1080p + IR',
+      ap: 'Intel Core Ultra 7 155H', graphics: 'Intel Arc (integrated)',
+      memory: '16/32GB LPDDR5', storage: '512GB/1TB NVMe SSD',
+      battery: '63Wh / 22h', adapter: '65W USB-C',
+      ports: 'TBT4(2), USB-A(2), HDMI 2.1, microSD, 3.5mm', security: 'Fingerprint, IR Camera',
+    },
+    'Galaxy Book4 Edge 16" (2024)': {
+      launch: '2024.07 / $1,399~', thicknessWeight: '11.5mm / 1.55kg',
+      cmfColor: 'Aluminum / Sapphire Blue',
+      display: '16", AMOLED 2.8K, 2880x1800, 120Hz, 500nits',
+      audio: 'AKG Four Speaker, Dolby Atmos', webcam: '1080p + IR',
+      ap: 'Snapdragon X Plus X1P-64-100', graphics: 'Qualcomm Adreno X1-45',
+      memory: '16/32/64GB LPDDR5X', storage: '512GB/1TB NVMe SSD',
+      battery: '61Wh / 22h', adapter: '65W USB-C',
+      ports: 'USB4(2), USB-A, HDMI 2.1, microSD, 3.5mm', security: 'Fingerprint, IR Camera',
+    },
+    'Galaxy Book4 Edge 14" (2024)': {
+      launch: '2024.07 / $1,349~', thicknessWeight: '11.5mm / 1.17kg',
+      cmfColor: 'Aluminum / Sapphire Blue',
+      display: '14", AMOLED 2.8K, 2880x1800, 120Hz, 500nits',
+      audio: 'AKG Stereo Speaker, Dolby Atmos', webcam: '1080p + IR',
+      ap: 'Snapdragon X Elite X1E-80-100', graphics: 'Qualcomm Adreno X1-85',
+      memory: '16/32/64GB LPDDR5X', storage: '512GB/1TB NVMe SSD',
+      battery: '55Wh / 22h', adapter: '65W USB-C',
+      ports: 'USB4(2), USB-A, HDMI 2.1, microSD, 3.5mm', security: 'Fingerprint, IR Camera',
+    },
+  },
+}
+
+async function getPCProductList(manufacturer) {
+  try {
+    const res = await fetch(PC_PRODUCTS_JSON_URL)
+    if (res.ok) {
+      const data = await res.json()
+      if (data[manufacturer]) return data[manufacturer].map(p => p.name)
+    }
+  } catch {}
+  return (FALLBACK_PC_DB[manufacturer] || []).map(p => p.name)
+}
+
+function getPCImageUrl(manufacturer, model) {
+  if (manufacturer === 'Apple') {
+    if (model.includes('Air')) return 'https://www.apple.com/v/macbook-air/z/images/meta/macbook_air_mx__ez5y0k5yy7au_og.png'
+    if (model.includes('Pro')) return 'https://www.apple.com/v/macbook-pro/ax/images/meta/macbook-pro__difvbgz1plsi_og.png'
+  }
+  if (manufacturer === 'Samsung') return 'https://images.samsung.com/is/content/samsung/p6pim/us/np960xha-kg2us/gallery/us-galaxy-book5-pro-14-inch-np940-578328-np960xha-kg2us-551312392.webp'
+  if (manufacturer === 'LG') return 'https://media.us.lg.com/transform/ecomm-PDPGalleryThumbnail-350x350/298b0212-786a-4586-ad34-d88a66d459a1/16Z90S-H-ADB9U1_gallery_01_5000x5000'
+  if (manufacturer === 'ASUS' && model.includes('ZenBook')) return 'https://dlcdnwebimgs.asus.com/gain/282fa6b1-5d9e-4950-ab46-1da2defbe6a3/'
+  return null
+}
+
+async function getPCSpecs(manufacturer, model) {
+  const specs = FALLBACK_PC_SPECS[manufacturer]?.[model]
+    ? { ...FALLBACK_PC_SPECS[manufacturer][model] }
+    : {}
+  const imgUrl = getPCImageUrl(manufacturer, model)
+  if (imgUrl) specs.imageUrl = imgUrl
+  return specs
 }

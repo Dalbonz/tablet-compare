@@ -1,8 +1,10 @@
 import { useState } from 'react'
 
-const ALL_CATEGORIES = ['기본 정보','바디','디스플레이','AP (성능)','메모리','카메라','사운드','배터리','통신 사양','센서','MISC']
+const TABLET_CATEGORIES = ['기본 정보','바디','디스플레이','AP','메모리','카메라','사운드','배터리','통신 사양','센서']
+const PC_CATEGORIES_LIST = ['기본 정보','Design','Entertainment','Performance','Productivity']
 
-export default function SettingsPanel({ settings, manufacturers, onSave, onClose }) {
+export default function SettingsPanel({ settings, manufacturers, onSave, onClose, mode }) {
+  const ALL_CATEGORIES = mode === 'pc' ? PC_CATEGORIES_LIST : TABLET_CATEGORIES
   const [s, setS] = useState({ ...settings })
 
   const toggle = (cat) => {
