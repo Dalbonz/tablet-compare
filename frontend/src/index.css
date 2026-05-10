@@ -55,7 +55,11 @@ body {
 /* ── Main layout ── */
 .main-layout { margin-left: var(--sidebar-width); min-height: 100vh; display: flex; flex-direction: column; }
 
-.header { background: var(--white); border-bottom: 1px solid var(--gray-200); padding: 10px 24px; text-align: center; }
+.header { background: var(--white); border-bottom: 1px solid var(--gray-200); padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; }
+.header-meta { text-align: right; display: flex; flex-direction: column; gap: 2px; }
+.header-version { font-size: 11px; color: var(--gray-400); font-weight: 500; }
+.header-contact { font-size: 11px; color: var(--gray-400); text-decoration: none; }
+.header-contact:hover { color: var(--blue); text-decoration: underline; }
 .app-brand { font-size: 10px; font-weight: 600; color: var(--gray-400); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2px; }
 .header h1 { font-size: 18px; font-weight: 700; color: var(--gray-800); letter-spacing: -0.3px; }
 

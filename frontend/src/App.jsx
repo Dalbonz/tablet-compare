@@ -201,6 +201,10 @@ export default function App() {
             <div className="app-brand">NC Product Compare</div>
             <h1>{mode === 'pc' ? 'PC Compare' : 'Tablet Compare'}</h1>
           </div>
+          <div className="header-meta">
+            <span className="header-version">Made by SW Park · Ver 1.0</span>
+            <a className="header-contact" href="mailto:sw01.park@samsung.com">sw01.park@samsung.com</a>
+          </div>
         </header>
 
         <div className="content">

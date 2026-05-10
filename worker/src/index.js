@@ -56,6 +56,9 @@ const CHIP_DB = {
   'Kirin 9000S': { single: 1050, multi: 3900, npu: '10 TOPS' },
   'Helio G99':   { single: 820,  multi: 2800, npu: null },
   'Helio G85':   { single: 520,  multi: 1600, npu: null },
+  'Snapdragon 778G':  { single: 1050, multi: 3000, npu: null },
+  'Snapdragon 6490':  { single: 1100, multi: 2900, npu: null },
+  'Snapdragon 660':   { single: 620,  multi: 1900, npu: null },
 }
 
 const PRODUCTS_JSON_URL = 'https://raw.githubusercontent.com/Dalbonz/tablet-compare/main/products.json'
@@ -340,6 +343,7 @@ const FALLBACK_TABLET_SPECS_B2B = {
       battery: '7600 mAh', charging: '45W',
       wlan: 'Wi-Fi 6', bluetooth: 'Bluetooth 5.2', nfc: '있음',
       usb: 'USB-C 3.2', sensors: 'Accelerometer, Gyroscope, Compass, Barometer',
+      imageUrl: 'https://images.samsung.com/is/image/samsung/p6pim/global/sm-t636bzkaxfe/gallery/global-galaxy-tab-active4-pro-t636-sm-t636bzkaxfe-front-black-534227041',
     },
   },
   'Zebra': {
@@ -354,6 +358,7 @@ const FALLBACK_TABLET_SPECS_B2B = {
       battery: '4420 mAh', charging: '18W',
       wlan: 'Wi-Fi 6', bluetooth: 'Bluetooth 5.0', nfc: '있음',
       usb: 'USB-C 2.0', sensors: 'Accelerometer, Gyroscope, Compass, Barometer',
+      imageUrl: 'https://www.zebra.com/content/dam/zebra_dam/global/photography/product/tablets/et40/et40-et45-tablet-product-image-1-large.jpg',
     },
     'ET45 8" 5G (B2B)': {
       dimensions: '221.0 x 140.0 x 19.2 mm', weight: '589 g',
@@ -366,6 +371,7 @@ const FALLBACK_TABLET_SPECS_B2B = {
       battery: '4420 mAh', charging: '18W',
       wlan: 'Wi-Fi 6E', bluetooth: 'Bluetooth 5.2', nfc: '있음',
       usb: 'USB-C 2.0', sensors: 'Accelerometer, Gyroscope, Compass, Barometer',
+      imageUrl: 'https://www.zebra.com/content/dam/zebra_dam/global/photography/product/tablets/et40/et40-et45-tablet-product-image-1-large.jpg',
     },
     'ET60 10" (B2B)': {
       dimensions: '268.0 x 183.0 x 18.5 mm', weight: '820 g',
@@ -378,6 +384,7 @@ const FALLBACK_TABLET_SPECS_B2B = {
       battery: '7200 mAh', charging: '18W',
       wlan: 'Wi-Fi 6E', bluetooth: 'Bluetooth 5.2', nfc: '있음',
       usb: 'USB-C 2.0', sensors: 'Accelerometer, Gyroscope, Compass, Barometer',
+      imageUrl: 'https://www.zebra.com/content/dam/zebra_dam/global/photography/product/tablets/et60/et60-et65-tablet-product-image-1-large.jpg',
     },
     'ET65 10" 5G (B2B)': {
       dimensions: '268.0 x 183.0 x 19.5 mm', weight: '870 g',
@@ -390,6 +397,7 @@ const FALLBACK_TABLET_SPECS_B2B = {
       battery: '7200 mAh', charging: '18W',
       wlan: 'Wi-Fi 6E', bluetooth: 'Bluetooth 5.2', nfc: '있음',
       usb: 'USB-C 2.0', sensors: 'Accelerometer, Gyroscope, Compass, Barometer',
+      imageUrl: 'https://www.zebra.com/content/dam/zebra_dam/global/photography/product/tablets/et60/et60-et65-tablet-product-image-1-large.jpg',
     },
   },
   'Panasonic': {
@@ -404,6 +412,7 @@ const FALLBACK_TABLET_SPECS_B2B = {
       battery: '6200 mAh', charging: '30W',
       wlan: 'Wi-Fi 6', bluetooth: 'Bluetooth 5.0', nfc: '있음',
       usb: 'USB-A, USB-C', sensors: 'Accelerometer, Gyroscope, Compass, Barometer',
+      imageUrl: 'https://na.panasonic.com/sites/default/files/2022-01/toughbook-a3-front-closed.png',
     },
     'Toughbook FZ-B3 (B2B)': {
       dimensions: '202.0 x 130.0 x 18.0 mm', weight: '390 g',
@@ -416,6 +425,7 @@ const FALLBACK_TABLET_SPECS_B2B = {
       battery: '4200 mAh', charging: '18W',
       wlan: 'Wi-Fi 5', bluetooth: 'Bluetooth 5.0', nfc: '있음',
       usb: 'USB-C', sensors: 'Accelerometer, Gyroscope, Compass',
+      imageUrl: 'https://na.panasonic.com/sites/default/files/2023-09/toughbook-b3-front.png',
     },
   },
 }
@@ -497,6 +507,20 @@ const TABLET_LAUNCH_PRICE_DB = {
     'Surface Pro 10': { launch: '2024.03', price: '$1,599' },
     'Surface Pro 9':  { launch: '2022.10', price: '$999' },
     'Surface Go 4':   { launch: '2023.09', price: '$579' },
+  },
+  'Samsung (Active)': {
+    'Galaxy Tab Active5 (B2B)':    { launch: '2024.02' },
+    'Galaxy Tab Active4 Pro (B2B)': { launch: '2022.08' },
+  },
+  'Zebra': {
+    'ET40 8" (B2B)':    { launch: '2022.09' },
+    'ET45 8" 5G (B2B)': { launch: '2023.04' },
+    'ET60 10" (B2B)':   { launch: '2022.09' },
+    'ET65 10" 5G (B2B)': { launch: '2023.04' },
+  },
+  'Panasonic': {
+    'Toughbook FZ-A3 (B2B)': { launch: '2022.01' },
+    'Toughbook FZ-B3 (B2B)': { launch: '2023.09' },
   },
 }
 
