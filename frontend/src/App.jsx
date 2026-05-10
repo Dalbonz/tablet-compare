@@ -152,6 +152,8 @@ export default function App() {
     imageUrl: r.imageUrl,
   }))
 
+  const contentMaxWidth = 384 + Math.min(rows.length - 1, 2) * 214
+
   return (
     <div style={{ display: 'flex' }}>
       {/* ── Sidebar ── */}
@@ -208,6 +210,7 @@ export default function App() {
         </header>
 
         <div className="content">
+          <div style={{ maxWidth: contentMaxWidth }}>
           <div className="top-section">
             {/* ── 제품 선택 행들 ── */}
             <div className="selector-area">
@@ -290,6 +293,7 @@ export default function App() {
               onToggleLayout={toggleLayout}
             />
           )}
+          </div>
         </div>
       </div>
 

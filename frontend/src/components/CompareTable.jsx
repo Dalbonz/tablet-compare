@@ -94,7 +94,7 @@ function ImageCell({ product, spec }) {
   if (product?.loading) return <span style={{ color: '#d1d5db' }}>로딩 중...</span>
   if (!spec.isImage) return null
   return product?.imageUrl
-    ? <img src={product.imageUrl} alt={product.model} className="table-product-image" crossOrigin="anonymous" />
+    ? <img src={product.imageUrl} alt={product.model} className="table-product-image" />
     : <div className="table-image-placeholder"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="1.5"><rect x="5" y="2" width="14" height="20" rx="2"/></svg></div>
 }
 
@@ -149,7 +149,7 @@ export default function CompareTable({ products, settings, categories: categorie
     setCopying(true)
     try {
       const canvas = await html2canvas(tableRef.current, {
-        scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false,
+        scale: 2, allowTaint: true, useCORS: false, backgroundColor: '#ffffff', logging: false,
       })
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'))
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
@@ -183,7 +183,7 @@ export default function CompareTable({ products, settings, categories: categorie
       </div>
 
       {/* ── Table (captured in image) ── */}
-      <div className="compare-table-wrap" ref={tableRef} style={{ maxWidth: tableMaxWidth }}>
+      <div className="compare-table-wrap" ref={tableRef}>
         <table className="compare-table">
           <thead>
             <tr>
