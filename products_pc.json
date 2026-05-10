@@ -1,5 +1,12 @@
 {
   "Apple": [
+    { "name": "MacBook Air 13\" (M5, 2026)", "dsId": "" },
+    { "name": "MacBook Air 15\" (M5, 2026)", "dsId": "" },
+    { "name": "MacBook Pro 14\" M5 Pro (2026)", "dsId": "" },
+    { "name": "MacBook Pro 14\" M5 Max (2026)", "dsId": "" },
+    { "name": "MacBook Pro 16\" M5 Pro (2026)", "dsId": "" },
+    { "name": "MacBook Pro 16\" M5 Max (2026)", "dsId": "" },
+    { "name": "MacBook Neo (2026)", "dsId": "" },
     { "name": "MacBook Air 13\" (M4, 2025)", "dsId": "" },
     { "name": "MacBook Air 15\" (M4, 2025)", "dsId": "" },
     { "name": "MacBook Air 13\" (M3, 2024)", "dsId": "" },
@@ -11,6 +18,8 @@
     { "name": "MacBook Pro 16\" M4 Max (2024)", "dsId": "" }
   ],
   "LG": [
+    { "name": "Gram Pro 16 (2026)", "dsId": "" },
+    { "name": "Gram Pro 17 (2026)", "dsId": "" },
     { "name": "Gram 14 (2025)", "dsId": "" },
     { "name": "Gram 16 (2025)", "dsId": "" },
     { "name": "Gram 17 (2025)", "dsId": "" },
@@ -20,6 +29,7 @@
     { "name": "Gram Style 16 (2024)", "dsId": "" }
   ],
   "Lenovo": [
+    { "name": "ThinkPad X1 Carbon Gen 14 (2026)", "dsId": "" },
     { "name": "ThinkPad X1 Carbon Gen 13 (2025)", "dsId": "" },
     { "name": "ThinkPad X1 Yoga Gen 9 (2025)", "dsId": "" },
     { "name": "Yoga Slim 9i Gen 9 (2025)", "dsId": "" },
@@ -29,6 +39,8 @@
     { "name": "Legion Slim 5i Gen 9 (2024)", "dsId": "" }
   ],
   "Dell": [
+    { "name": "XPS 14 (2026)", "dsId": "" },
+    { "name": "XPS 16 (2026)", "dsId": "" },
     { "name": "XPS 13 9340 (2024)", "dsId": "" },
     { "name": "XPS 14 9440 (2024)", "dsId": "" },
     { "name": "XPS 16 9640 (2024)", "dsId": "" },
@@ -67,6 +79,9 @@
     { "name": "RedmiBook 14 (2024)", "dsId": "" }
   ],
   "Samsung": [
+    { "name": "Galaxy Book6 Ultra 16\" (2026)", "dsId": "" },
+    { "name": "Galaxy Book6 Pro 16\" (2026)", "dsId": "" },
+    { "name": "Galaxy Book6 Pro 14\" (2026)", "dsId": "" },
     { "name": "Galaxy Book5 Pro 360 16\" (2025)", "dsId": "" },
     { "name": "Galaxy Book5 Pro 16\" (2025)", "dsId": "" },
     { "name": "Galaxy Book5 Pro 14\" (2025)", "dsId": "" },

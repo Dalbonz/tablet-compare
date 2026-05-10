@@ -35,6 +35,8 @@
     { "name": "Galaxy Tab S8",        "dsId": "3a7c5893" }
   ],
   "Xiaomi": [
+    { "name": "Xiaomi Pad 8 Pro",  "dsId": "3c5e6516" },
+    { "name": "Xiaomi Pad 8",      "dsId": "ae326515" },
     { "name": "Xiaomi Pad 7 Pro",  "dsId": "182061e1" },
     { "name": "Xiaomi Pad 7",      "dsId": "756361e0" },
     { "name": "Xiaomi Pad 6 Pro",  "dsId": "28b85c73" },
@@ -46,6 +48,8 @@
     { "name": "Redmi Pad 2",       "dsId": "09ec63cc" }
   ],
   "Lenovo": [
+    { "name": "Legion Tab Gen 5",   "dsId": "caa1669f" },
+    { "name": "Idea Tab Pro Gen 2", "dsId": "c197669e" },
     { "name": "Tab Extreme",        "dsId": "6d015b88" },
     { "name": "Tab P12 Pro",        "dsId": "e6a1579e" },
     { "name": "Tab P12",            "dsId": "86725d62" },
@@ -70,6 +74,7 @@
   "Google":  [{ "name": "Pixel Tablet (2023)", "dsId": "5adf5ca4" }],
   "ASUS":    [{ "name": "ROG Flow Z13 (2024)", "dsId": "" }],
   "OnePlus": [
+    { "name": "OnePlus Pad 4",  "dsId": "b68f6735" },
     { "name": "OnePlus Pad 2",  "dsId": "1f3c60c2" },
     { "name": "OnePlus Pad Go", "dsId": "33c25dfd" },
     { "name": "OnePlus Pad",    "dsId": "c80a5bd7" }
