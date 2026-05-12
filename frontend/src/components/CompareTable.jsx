@@ -1,6 +1,8 @@
 import { useRef, useState } from 'react'
 import html2canvas from 'html2canvas'
 
+const WORKER_URL = import.meta.env.VITE_WORKER_URL || '/api'
+
 const ALL_CATEGORIES = [
   { name: '기본 정보', color: '#6b7280', specs: [
     { key: '_image', label: '이미지', isImage: true },
@@ -9,6 +11,7 @@ const ALL_CATEGORIES = [
   { name: '바디', color: '#8b5cf6', specs: [
     { key: 'dimensions', label: 'Dimensions' },
     { key: 'weight', label: 'Weight' },
+    { key: 'waterRating', label: '방수 등급' },
   ]},
   { name: '디스플레이', color: '#3b82f6', specs: [
     { key: 'displaySize', label: 'Size' },
@@ -22,13 +25,14 @@ const ALL_CATEGORIES = [
     { key: 'chipset', label: 'Chipset' },
     { key: 'singleCore', label: 'Single-Core', numeric: true },
     { key: 'multiCore', label: 'Multi-Core', numeric: true },
-    { key: 'gpu', label: 'GPU' },
+    { key: 'gpuScore', label: 'GPU Score (GB6)', numeric: true },
     { key: 'npu', label: 'NPU (TOPS)', numeric: true },
     { key: 'benchmarkSource', label: 'Source' },
   ]},
   { name: '메모리', color: '#f59e0b', specs: [
     { key: 'ram', label: 'RAM' },
     { key: 'storage', label: 'Storage (기본)' },
+    { key: 'sdCard', label: 'SD Card' },
   ]},
   { name: '카메라', color: '#ec4899', specs: [
     { key: 'rearCamera', label: '후면' },
@@ -107,14 +111,18 @@ function SpecValue({ value, isWebSearch }) {
   )
 }
 
-function ProductCell({ product, spec, badge, extra }) {
+function ProductCell({ product, spec, badge, extra, onSpecChange }) {
+  const editable = product?.isUnreleased && onSpecChange && !spec.isImage
   return (
     <td className={valueCellClass(badge, spec.isImage, extra)}>
       {product?.loading
         ? <span style={{ color: '#d1d5db' }}>로딩 중...</span>
         : spec.isImage
           ? <ImageCell product={product} spec={spec} />
-          : <SpecValue value={product?.specs?.[spec.key]} isWebSearch={product?.specs?.[`${spec.key}_web`]} />
+          : editable
+            ? <input className="spec-input" value={product?.specs?.[spec.key] || ''}
+                onChange={e => onSpecChange(product.id, spec.key, e.target.value)} />
+            : <SpecValue value={product?.specs?.[spec.key]} isWebSearch={product?.specs?.[`${spec.key}_web`]} />
       }
     </td>
   )
@@ -128,7 +136,7 @@ function SetRefButton({ onClick }) {
   )
 }
 
-export default function CompareTable({ products, settings, categories: categoriesProp, onSetReference, layoutMode, onToggleLayout }) {
+export default function CompareTable({ products, settings, categories: categoriesProp, onSetReference, layoutMode, onToggleLayout, onSpecChange }) {
   const tableRef = useRef(null)
   const [copying, setCopying] = useState(false)
 
@@ -146,21 +154,34 @@ export default function CompareTable({ products, settings, categories: categorie
   const handleCopyImage = async () => {
     if (!tableRef.current || copying) return
     setCopying(true)
+    const imgs = Array.from(tableRef.current.querySelectorAll('img'))
+    const origSrcs = imgs.map(img => img.src)
     try {
+      await Promise.all(imgs.map(async (img, i) => {
+        try {
+          const proxyUrl = `${WORKER_URL}/proxy-image?url=${encodeURIComponent(origSrcs[i])}`
+          const resp = await fetch(proxyUrl)
+          const blob = await resp.blob()
+          await new Promise((res, rej) => {
+            const reader = new FileReader()
+            reader.onload = () => { img.src = reader.result; res() }
+            reader.onerror = rej
+            reader.readAsDataURL(blob)
+          })
+        } catch { /* 이미지 프록시 실패 시 원본 유지 */ }
+      }))
       const canvas = await html2canvas(tableRef.current, {
-        scale: 2, allowTaint: true, useCORS: false, backgroundColor: '#ffffff', logging: false,
+        scale: 2, backgroundColor: '#ffffff', logging: false,
       })
+      imgs.forEach((img, i) => { img.src = origSrcs[i] })
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'))
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
-    } catch {
-      // Fallback: download as file
-      const canvas = await html2canvas(tableRef.current, { scale: 2, backgroundColor: '#ffffff', logging: false })
-      const link = document.createElement('a')
-      link.download = 'compare.png'
-      link.href = canvas.toDataURL()
-      link.click()
+    } catch (err) {
+      imgs.forEach((img, i) => { img.src = origSrcs[i] })
+      console.error('클립보드 복사 실패:', err)
+    } finally {
+      setTimeout(() => setCopying(false), 1500)
     }
-    setTimeout(() => setCopying(false), 1500)
   }
 
   return (
@@ -181,6 +202,16 @@ export default function CompareTable({ products, settings, categories: categorie
         </button>
       </div>
 
+      {/* ── Badge legend ── */}
+      <div className="badge-legend">
+        <span className="badge badge-superior">{'<<'}</span> 기준 대비 강한 우위
+        <span className="badge badge-slightly-superior" style={{marginLeft:8}}>{'<'}</span> 약한 우위
+        <span className="badge badge-equal" style={{marginLeft:8}}>{'='}</span> 동등
+        <span className="badge badge-slightly-inferior" style={{marginLeft:8}}>{'>'}</span> 약한 열세
+        <span className="badge badge-inferior" style={{marginLeft:8}}>{'>>'}</span> 강한 열세
+        <span className="badge-legend-note">· 임계값은 설정에서 변경 가능</span>
+      </div>
+
       {/* ── Table (captured in image) ── */}
       <div className="compare-table-wrap" ref={tableRef}>
         <table className="compare-table">
@@ -195,7 +226,7 @@ export default function CompareTable({ products, settings, categories: categorie
                   <th className="col-product" style={{ textAlign: 'center' }}>
                     <div className="col-header-product" style={{ justifyContent: 'center', flexDirection: 'column', alignItems: 'center' }}>
                       {leftCmp?.manufacturer && <span className="manufacturer-label">{leftCmp.manufacturer}</span>}
-                      <span>{leftCmp?.model || '-'}</span>
+                      <span>{leftCmp?.model || '-'}{leftCmp?.isUnreleased && <span className="unreleased-badge">미출시</span>}</span>
                       {onSetReference && <SetRefButton onClick={() => onSetReference(leftCmp.id)} />}
                     </div>
                   </th>
@@ -204,7 +235,7 @@ export default function CompareTable({ products, settings, categories: categorie
                     <div className="col-header-product" style={{ justifyContent: 'center' }}>
                       <div>
                         {ref?.manufacturer && <span className="manufacturer-label">{ref.manufacturer}</span>}
-                        <span>{ref?.model || '-'}</span>
+                        <span>{ref?.model || '-'}{ref?.isUnreleased && <span className="unreleased-badge">미출시</span>}</span>
                       </div>
                       <span className="reference-tag">기준</span>
                     </div>
@@ -213,7 +244,7 @@ export default function CompareTable({ products, settings, categories: categorie
                   <th className="col-product" style={{ textAlign: 'center' }}>
                     <div className="col-header-product" style={{ justifyContent: 'center', flexDirection: 'column', alignItems: 'center' }}>
                       {rightCmp?.manufacturer && <span className="manufacturer-label">{rightCmp.manufacturer}</span>}
-                      <span>{rightCmp?.model || '-'}</span>
+                      <span>{rightCmp?.model || '-'}{rightCmp?.isUnreleased && <span className="unreleased-badge">미출시</span>}</span>
                       {onSetReference && <SetRefButton onClick={() => onSetReference(rightCmp.id)} />}
                     </div>
                   </th>
@@ -225,7 +256,7 @@ export default function CompareTable({ products, settings, categories: categorie
                     <div className="col-header-product" style={{ justifyContent: 'center' }}>
                       <div>
                         {ref?.manufacturer && <span className="manufacturer-label">{ref.manufacturer}</span>}
-                        <span>{ref?.model || '-'}</span>
+                        <span>{ref?.model || '-'}{ref?.isUnreleased && <span className="unreleased-badge">미출시</span>}</span>
                       </div>
                       <span className="reference-tag">기준</span>
                     </div>
@@ -236,7 +267,7 @@ export default function CompareTable({ products, settings, categories: categorie
                       <th key={`prod-h-${p.id}`} className="col-product" style={{ textAlign: 'center' }}>
                         <div className="col-header-product" style={{ justifyContent: 'center', flexDirection: 'column', alignItems: 'center' }}>
                           {p.manufacturer && <span className="manufacturer-label">{p.manufacturer}</span>}
-                          <span>{p.model || '-'}</span>
+                          <span>{p.model || '-'}{p.isUnreleased && <span className="unreleased-badge">미출시</span>}</span>
                           {onSetReference && <SetRefButton onClick={() => onSetReference(p.id)} />}
                         </div>
                       </th>
@@ -274,29 +305,22 @@ export default function CompareTable({ products, settings, categories: categorie
                       {isCenterMode ? (
                         <>
                           {/* Left compare */}
-                          <ProductCell product={leftCmp} spec={spec} badge={leftBadge} />
+                          <ProductCell product={leftCmp} spec={spec} badge={leftBadge} onSpecChange={onSpecChange} />
                           <td className="comparison-cell">
                             {leftMirrorLabel && <span className="compare-badge">{leftMirrorLabel}</span>}
                           </td>
                           {/* Reference (center) */}
-                          <ProductCell product={ref} spec={spec} badge={null} extra="ref-center-col" />
+                          <ProductCell product={ref} spec={spec} badge={null} extra="ref-center-col" onSpecChange={onSpecChange} />
                           {/* Right compare */}
                           <td className="comparison-cell">
                             {rightBadge && <span className="compare-badge">{rightBadge.label}</span>}
                           </td>
-                          <ProductCell product={rightCmp} spec={spec} badge={rightBadge} />
+                          <ProductCell product={rightCmp} spec={spec} badge={rightBadge} onSpecChange={onSpecChange} />
                         </>
                       ) : (
                         <>
                           {/* Reference */}
-                          <td className={spec.isImage ? 'spec-value-cell image-cell' : 'spec-value-cell'}>
-                            {ref?.loading
-                              ? <span style={{ color: '#d1d5db' }}>로딩 중...</span>
-                              : spec.isImage
-                                ? <ImageCell product={ref} spec={spec} />
-                                : <SpecValue value={ref?.specs?.[spec.key]} isWebSearch={ref?.specs?.[`${spec.key}_web`]} />
-                            }
-                          </td>
+                          <ProductCell product={ref} spec={spec} badge={null} onSpecChange={onSpecChange} />
                           {/* Compare products */}
                           {compareProducts.map((p) => {
                             const badge = getBadgeForSpec(ref, p, spec, settings?.thresholds)
@@ -305,7 +329,7 @@ export default function CompareTable({ products, settings, categories: categorie
                                 <td key={`cmp-${p.id}-${spec.key}`} className="comparison-cell">
                                   {badge && <span className="compare-badge">{badge.label}</span>}
                                 </td>
-                                <ProductCell key={`val-${p.id}-${spec.key}`} product={p} spec={spec} badge={badge} />
+                                <ProductCell key={`val-${p.id}-${spec.key}`} product={p} spec={spec} badge={badge} onSpecChange={onSpecChange} />
                               </>
                             )
                           })}

@@ -9,56 +9,57 @@ const CORS = {
 }
 
 const CHIP_DB = {
-  'Apple M5':         { single: 4200, multi: 17000, npu: '50 TOPS' },
-  'Apple M4':         { single: 3864, multi: 15119, npu: '38 TOPS' },
-  'Apple M4 Pro':     { single: 4020, multi: 23000, npu: '38 TOPS' },
-  'Apple M3':         { single: 3190, multi: 12640, npu: '18 TOPS' },
-  'Apple M3 Pro':     { single: 3220, multi: 15000, npu: '18 TOPS' },
-  'Apple M2':         { single: 2670, multi: 10600, npu: '15.8 TOPS' },
-  'Apple M2 Pro':     { single: 2700, multi: 13800, npu: '15.8 TOPS' },
-  'Apple M1':         { single: 2370, multi: 8620,  npu: '11 TOPS' },
-  'Apple A17 Pro':    { single: 2900, multi: 7200,  npu: '35 TOPS' },
-  'Apple A16 Bionic': { single: 2520, multi: 6360,  npu: '17 TOPS' },
-  'Apple A16':        { single: 2520, multi: 6360,  npu: '17 TOPS' },
-  'Apple A15 Bionic': { single: 2370, multi: 5660,  npu: '15.8 TOPS' },
-  'Apple A14 Bionic': { single: 1990, multi: 4900,  npu: '11 TOPS' },
-  'Snapdragon 8 Elite Gen 5': { single: 3600, multi: 10500, npu: '100 TOPS' },
-  'Snapdragon 8 Elite':   { single: 2900, multi: 9200, npu: '45 TOPS' },
-  'Snapdragon 8s Gen 4':  { single: 2100, multi: 6900, npu: null },
-  'Snapdragon 8s Gen 3':  { single: 2100, multi: 6500, npu: '45 TOPS' },
-  'Snapdragon 8 Gen 3':   { single: 2200, multi: 6900, npu: '45 TOPS' },
-  'Snapdragon 8 Gen 2':   { single: 1990, multi: 5500, npu: '26 TOPS' },
-  'Snapdragon 8 Gen 1':   { single: 1470, multi: 4800, npu: '26 TOPS' },
-  'Snapdragon 8+ Gen 1':  { single: 1580, multi: 5000, npu: '26 TOPS' },
-  'Snapdragon 870':       { single: 1120, multi: 3800, npu: null },
-  'Snapdragon 7+ Gen 3':  { single: 1800, multi: 5200, npu: null },
-  'Snapdragon 7s Gen 1':  { single: 1050, multi: 3200, npu: null },
-  'Snapdragon 680':       { single: 620,  multi: 1800, npu: null },
-  'Snapdragon 8cx Gen 3': { single: 1450, multi: 6800, npu: null },
-  'Dimensity 9400+': { single: 2850, multi: 9100, npu: '35 TOPS' },
-  'Dimensity 9400':  { single: 2780, multi: 8800, npu: '35 TOPS' },
-  'Dimensity 9300+': { single: 2100, multi: 7200, npu: '33 TOPS' },
-  'Dimensity 9300':  { single: 2050, multi: 6900, npu: '33 TOPS' },
-  'Dimensity 9200+': { single: 1800, multi: 5600, npu: '22 TOPS' },
-  'Dimensity 9000':  { single: 1490, multi: 4900, npu: '4.7 TOPS' },
-  'Exynos 2400':     { single: 1900, multi: 7100, npu: '34.4 TOPS' },
-  'Exynos 1580':     { single: 1100, multi: 3800, npu: null },
-  'Exynos 1380':     { single: 920,  multi: 3200, npu: null },
-  'Exynos 2200':     { single: 1350, multi: 4200, npu: '22 TOPS' },
-  'Snapdragon X Elite':  { single: 2600, multi: 14000, npu: '45 TOPS' },
-  'Snapdragon X Plus':   { single: 2200, multi: 10000, npu: '45 TOPS' },
-  'Intel Core Ultra 5': { single: 2200, multi: 10500, npu: '34 TOPS' },
-  'Intel Core Ultra 7': { single: 2400, multi: 12000, npu: '34 TOPS' },
-  'Intel Core i5-1235U': { single: 1850, multi: 8000,  npu: null },
-  'Intel N200':          { single: 800,  multi: 2400,  npu: null },
-  'Ryzen 9 8945HS':      { single: 2500, multi: 14000, npu: '33 TOPS' },
-  'Kirin 9010':  { single: 1200, multi: 4800, npu: '20 TOPS' },
-  'Kirin 9000S': { single: 1050, multi: 3900, npu: '10 TOPS' },
-  'Helio G99':   { single: 820,  multi: 2800, npu: null },
-  'Helio G85':   { single: 520,  multi: 1600, npu: null },
-  'Snapdragon 778G':  { single: 1050, multi: 3000, npu: null },
-  'Snapdragon 6490':  { single: 1100, multi: 2900, npu: null },
-  'Snapdragon 660':   { single: 620,  multi: 1900, npu: null },
+  // single/multi: Geekbench 6 CPU, gpuScore: Geekbench 6 Metal(Apple) / Vulkan(others)
+  'Apple M5':         { single: 4200, multi: 17000, npu: '50 TOPS', gpuScore: 90000 },
+  'Apple M4':         { single: 3864, multi: 15119, npu: '38 TOPS', gpuScore: 69000 },
+  'Apple M4 Pro':     { single: 4020, multi: 23000, npu: '38 TOPS', gpuScore: 95000 },
+  'Apple M3':         { single: 3190, multi: 12640, npu: '18 TOPS', gpuScore: 49500 },
+  'Apple M3 Pro':     { single: 3220, multi: 15000, npu: '18 TOPS', gpuScore: 75000 },
+  'Apple M2':         { single: 2670, multi: 10600, npu: '15.8 TOPS', gpuScore: 36000 },
+  'Apple M2 Pro':     { single: 2700, multi: 13800, npu: '15.8 TOPS', gpuScore: 55000 },
+  'Apple M1':         { single: 2370, multi: 8620,  npu: '11 TOPS',  gpuScore: 24000 },
+  'Apple A17 Pro':    { single: 2900, multi: 7200,  npu: '35 TOPS',  gpuScore: 28000 },
+  'Apple A16 Bionic': { single: 2520, multi: 6360,  npu: '17 TOPS',  gpuScore: 19000 },
+  'Apple A16':        { single: 2520, multi: 6360,  npu: '17 TOPS',  gpuScore: 19000 },
+  'Apple A15 Bionic': { single: 2370, multi: 5660,  npu: '15.8 TOPS', gpuScore: 14000 },
+  'Apple A14 Bionic': { single: 1990, multi: 4900,  npu: '11 TOPS',  gpuScore: 11000 },
+  'Snapdragon 8 Elite Gen 5': { single: 3600, multi: 10500, npu: '100 TOPS', gpuScore: 30000 },
+  'Snapdragon 8 Elite':   { single: 2900, multi: 9200, npu: '45 TOPS', gpuScore: 22000 },
+  'Snapdragon 8s Gen 4':  { single: 2100, multi: 6900, npu: null,      gpuScore: 10000 },
+  'Snapdragon 8s Gen 3':  { single: 2100, multi: 6500, npu: '45 TOPS', gpuScore: 9000 },
+  'Snapdragon 8 Gen 3':   { single: 2200, multi: 6900, npu: '45 TOPS', gpuScore: 16000 },
+  'Snapdragon 8 Gen 2':   { single: 1990, multi: 5500, npu: '26 TOPS', gpuScore: 11000 },
+  'Snapdragon 8 Gen 1':   { single: 1470, multi: 4800, npu: '26 TOPS', gpuScore: 7000 },
+  'Snapdragon 8+ Gen 1':  { single: 1580, multi: 5000, npu: '26 TOPS', gpuScore: 8000 },
+  'Snapdragon 870':       { single: 1120, multi: 3800, npu: null,       gpuScore: 4500 },
+  'Snapdragon 7+ Gen 3':  { single: 1800, multi: 5200, npu: null,       gpuScore: 8500 },
+  'Snapdragon 7s Gen 1':  { single: 1050, multi: 3200, npu: null,       gpuScore: 3000 },
+  'Snapdragon 680':       { single: 620,  multi: 1800, npu: null,       gpuScore: 1200 },
+  'Snapdragon 8cx Gen 3': { single: 1450, multi: 6800, npu: null,       gpuScore: 6500 },
+  'Dimensity 9400+': { single: 2850, multi: 9100, npu: '35 TOPS', gpuScore: 20000 },
+  'Dimensity 9400':  { single: 2780, multi: 8800, npu: '35 TOPS', gpuScore: 19000 },
+  'Dimensity 9300+': { single: 2100, multi: 7200, npu: '33 TOPS', gpuScore: 14000 },
+  'Dimensity 9300':  { single: 2050, multi: 6900, npu: '33 TOPS', gpuScore: 13000 },
+  'Dimensity 9200+': { single: 1800, multi: 5600, npu: '22 TOPS', gpuScore: 10000 },
+  'Dimensity 9000':  { single: 1490, multi: 4900, npu: '4.7 TOPS', gpuScore: 8000 },
+  'Exynos 2400':     { single: 1900, multi: 7100, npu: '34.4 TOPS', gpuScore: 13000 },
+  'Exynos 1580':     { single: 1100, multi: 3800, npu: null,        gpuScore: 4500 },
+  'Exynos 1380':     { single: 920,  multi: 3200, npu: null,        gpuScore: 3500 },
+  'Exynos 2200':     { single: 1350, multi: 4200, npu: '22 TOPS',   gpuScore: 7000 },
+  'Snapdragon X Elite':  { single: 2600, multi: 14000, npu: '45 TOPS', gpuScore: 15000 },
+  'Snapdragon X Plus':   { single: 2200, multi: 10000, npu: '45 TOPS', gpuScore: 11000 },
+  'Intel Core Ultra 5': { single: 2200, multi: 10500, npu: '34 TOPS', gpuScore: 15000 },
+  'Intel Core Ultra 7': { single: 2400, multi: 12000, npu: '34 TOPS', gpuScore: 18000 },
+  'Intel Core i5-1235U': { single: 1850, multi: 8000,  npu: null,      gpuScore: 8000 },
+  'Intel N200':          { single: 800,  multi: 2400,  npu: null,      gpuScore: 2500 },
+  'Ryzen 9 8945HS':      { single: 2500, multi: 14000, npu: '33 TOPS', gpuScore: 28000 },
+  'Kirin 9010':  { single: 1200, multi: 4800, npu: '20 TOPS', gpuScore: 5000 },
+  'Kirin 9000S': { single: 1050, multi: 3900, npu: '10 TOPS', gpuScore: 4000 },
+  'Helio G99':   { single: 820,  multi: 2800, npu: null,       gpuScore: 2000 },
+  'Helio G85':   { single: 520,  multi: 1600, npu: null,       gpuScore: 1000 },
+  'Snapdragon 778G':  { single: 1050, multi: 3000, npu: null,  gpuScore: 4000 },
+  'Snapdragon 6490':  { single: 1100, multi: 2900, npu: null,  gpuScore: 3500 },
+  'Snapdragon 660':   { single: 620,  multi: 1900, npu: null,  gpuScore: 1500 },
 }
 
 const PRODUCTS_JSON_URL = 'https://raw.githubusercontent.com/Dalbonz/tablet-compare/main/products.json'
@@ -84,20 +85,28 @@ const FALLBACK_DB = {
     { name: 'iPad mini (2021)',     dsId: '5906574f' },
   ],
   'Samsung': [
-    { name: 'Galaxy Tab S11 Ultra', dsId: '540864a1' },
-    { name: 'Galaxy Tab S11',       dsId: 'd23d649f' },
-    { name: 'Galaxy Tab S10 Ultra', dsId: '577e613d' },
-    { name: 'Galaxy Tab S10+',      dsId: '89d0613e' },
-    { name: 'Galaxy Tab S10 FE',    dsId: 'ee8362ea' },
-    { name: 'Galaxy Tab S9 Ultra',  dsId: 'e5835d57' },
-    { name: 'Galaxy Tab S9+',       dsId: '8cd35d55' },
-    { name: 'Galaxy Tab S9',        dsId: '3e195d54' },
-    { name: 'Galaxy Tab S9 FE',     dsId: 'b0925df5' },
-    { name: 'Galaxy Tab A9+',       dsId: '7c7d5e01' },
-    { name: 'Galaxy Tab A9',        dsId: '7c385dff' },
-    { name: 'Galaxy Tab S8 Ultra',  dsId: '0a455896' },
-    { name: 'Galaxy Tab S8+',       dsId: 'b4cc5895' },
-    { name: 'Galaxy Tab S8',        dsId: '3a7c5893' },
+    { name: 'Galaxy Tab S11 Ultra',    dsId: '540864a1' },
+    { name: 'Galaxy Tab S11',          dsId: 'd23d649f' },
+    { name: 'Galaxy Tab S10 Ultra',    dsId: '577e613d' },
+    { name: 'Galaxy Tab S10+',         dsId: '89d0613e' },
+    { name: 'Galaxy Tab S10 FE',       dsId: 'ee8362ea' },
+    { name: 'Galaxy Tab S9 Ultra',     dsId: 'e5835d57' },
+    { name: 'Galaxy Tab S9+',          dsId: '8cd35d55' },
+    { name: 'Galaxy Tab S9',           dsId: '3e195d54' },
+    { name: 'Galaxy Tab S9 FE',        dsId: 'b0925df5' },
+    { name: 'Galaxy Tab A9+',          dsId: '7c7d5e01' },
+    { name: 'Galaxy Tab A9',           dsId: '7c385dff' },
+    { name: 'Galaxy Tab S8 Ultra',     dsId: '0a455896' },
+    { name: 'Galaxy Tab S8+',          dsId: 'b4cc5895' },
+    { name: 'Galaxy Tab S8',           dsId: '3a7c5893' },
+    { name: 'Galaxy Tab S7 FE',        dsId: '0dc256f6' },
+    { name: 'Galaxy Tab S7+',          dsId: '7e6a5424' },
+    { name: 'Galaxy Tab S7',           dsId: '62955422' },
+    { name: 'Galaxy Tab S6 Lite (2024)', dsId: 'd8525f92' },
+    { name: 'Galaxy Tab S6 Lite (2022)', dsId: '89ff5971' },
+    { name: 'Galaxy Tab S6 Lite',      dsId: 'b8cd534b' },
+    { name: 'Galaxy Tab A8',           dsId: '7ced584b' },
+    { name: 'Galaxy Tab A7 Lite',      dsId: '97b45682' },
   ],
   'Xiaomi': [
     { name: 'Xiaomi Pad 8 Pro', dsId: '3c5e6516' },
@@ -139,13 +148,14 @@ const FALLBACK_DB = {
   ],
   'Sony': [{ name: 'Xperia Z4 Tablet', dsId: '3f0036f3' }],
   'Samsung (Active)': [
-    { name: 'Galaxy Tab Active5 (B2B)',    dsId: '' },
-    { name: 'Galaxy Tab Active4 Pro (B2B)', dsId: '' },
+    { name: 'Galaxy Tab Active5 Pro (B2B)', dsId: '5a196310' },
+    { name: 'Galaxy Tab Active5 (B2B)',     dsId: '' },
   ],
   'Zebra': [
-    { name: 'ET40 8" (B2B)',   dsId: '' },
+    { name: 'ET401 8" (B2B)',    dsId: '' },
+    { name: 'ET40 8" (B2B)',     dsId: '' },
     { name: 'ET45 8" 5G (B2B)', dsId: '' },
-    { name: 'ET60 10" (B2B)',  dsId: '' },
+    { name: 'ET60 10" (B2B)',   dsId: '' },
     { name: 'ET65 10" 5G (B2B)', dsId: '' },
   ],
   'Panasonic': [
@@ -183,6 +193,19 @@ export default {
         const mfr = url.searchParams.get('manufacturer')
         const model = url.searchParams.get('model')
         return json(await getPCSpecs(mfr, model))
+      }
+      if (path === '/proxy-image') {
+        const imgUrl = url.searchParams.get('url')
+        if (!imgUrl) return new Response('Missing url', { status: 400 })
+        const resp = await fetch(imgUrl)
+        const blob = await resp.blob()
+        return new Response(blob, {
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Content-Type': resp.headers.get('content-type') || 'image/jpeg',
+            'Cache-Control': 'public, max-age=86400',
+          }
+        })
       }
       return json({ error: 'Not found' }, 404)
     } catch (e) {
@@ -319,46 +342,63 @@ const FALLBACK_TABLET_SPECS = {
 
 const FALLBACK_TABLET_SPECS_B2B = {
   'Samsung (Active)': {
+    'Galaxy Tab Active5 Pro (B2B)': {
+      dimensions: '171.8 x 103.3 x 10.7 mm', weight: '475 g',
+      displaySize: '10.1 in', displayType: 'TFT LCD, Gorilla Glass 5',
+      refreshRate: '60', resolution: '1920 x 1200 pixels', ppi: '224',
+      chipset: 'Exynos 1380', gpu: 'ARM Mali-G68 MP5',
+      ram: '6 GB', storage: '128 GB',
+      sdCard: 'microSD (최대 1 TB)', waterRating: 'IP68',
+      rearCamera: '13MP', frontCamera: '8MP',
+      speakers: '스테레오', headphone: '있음',
+      battery: '10090 mAh', charging: '45W',
+      wlan: 'Wi-Fi 6', bluetooth: 'Bluetooth 5.3', nfc: '있음',
+      usb: 'USB-C 3.2', sensors: 'Accelerometer, Gyroscope, Compass, Barometer',
+      imageUrl: '',
+    },
     'Galaxy Tab Active5 (B2B)': {
       dimensions: '168.1 x 99.6 x 10.6 mm', weight: '392 g',
       displaySize: '8.0 in', displayType: 'TFT LCD, Gorilla Glass 5',
       refreshRate: '60', resolution: '1920 x 1200 pixels', ppi: '283',
       chipset: 'Exynos 1380', gpu: 'ARM Mali-G68 MP5',
       ram: '6 GB', storage: '128 GB',
+      sdCard: 'microSD (최대 1 TB)', waterRating: 'IP68',
       rearCamera: '13MP', frontCamera: '5MP',
       speakers: '스테레오', headphone: '있음',
       battery: '5050 mAh', charging: '45W',
       wlan: 'Wi-Fi 6', bluetooth: 'Bluetooth 5.3', nfc: '있음',
       usb: 'USB-C 3.2', sensors: 'Accelerometer, Gyroscope, Compass, Barometer',
-      imageUrl: 'https://images.samsung.com/is/image/samsung/p6pim/global/sm-x306bzaaxfe/gallery/global-galaxy-tab-active5-x306-sm-x306bzaaxfe-543136289',
-    },
-    'Galaxy Tab Active4 Pro (B2B)': {
-      dimensions: '198.8 x 121.0 x 10.2 mm', weight: '630 g',
-      displaySize: '10.1 in', displayType: 'TFT LCD, Gorilla Glass 5',
-      refreshRate: '60', resolution: '1920 x 1200 pixels', ppi: '224',
-      chipset: 'Snapdragon 778G', gpu: 'Qualcomm Adreno 642L',
-      ram: '6 GB', storage: '128 GB',
-      rearCamera: '13MP', frontCamera: '8MP',
-      speakers: '스테레오', headphone: '있음',
-      battery: '7600 mAh', charging: '45W',
-      wlan: 'Wi-Fi 6', bluetooth: 'Bluetooth 5.2', nfc: '있음',
-      usb: 'USB-C 3.2', sensors: 'Accelerometer, Gyroscope, Compass, Barometer',
-      imageUrl: 'https://images.samsung.com/is/image/samsung/p6pim/global/sm-t636bzkaxfe/gallery/global-galaxy-tab-active4-pro-t636-sm-t636bzkaxfe-front-black-534227041',
+      imageUrl: 'https://images.samsung.com/is/image/samsung/assets/us/business/mobile/tablets/galaxy-tab-active/explore/02092024/FT03-FEATURE-FULL-BLEED-Galaxy-TabActive5_SM-X306B_1_RuggedDurabilityintoughenvironment2-D.jpg',
     },
   },
   'Zebra': {
+    'ET401 8" (B2B)': {
+      dimensions: '218.0 x 137.0 x 17.0 mm', weight: '520 g',
+      displaySize: '8.0 in', displayType: 'LCD, Gorilla Glass, Touch',
+      refreshRate: '60', resolution: '1920 x 1200 pixels', ppi: '283',
+      chipset: 'Snapdragon 6490', gpu: 'Qualcomm Adreno 643',
+      ram: '6 GB', storage: '64 GB',
+      sdCard: 'microSD (최대 1 TB)', waterRating: 'IP65',
+      rearCamera: '13MP', frontCamera: '5MP',
+      speakers: '스테레오', headphone: '있음',
+      battery: '5000 mAh', charging: '18W',
+      wlan: 'Wi-Fi 6E', bluetooth: 'Bluetooth 5.2', nfc: '있음',
+      usb: 'USB-C 2.0', sensors: 'Accelerometer, Gyroscope, Compass, Barometer',
+      imageUrl: 'https://cdn11.bigcommerce.com/s-ka7ofex/products/5343/images/21952/Zebra_8_Inch_ET40_Enterprise_Rugged_Android_Tablet_Front__19824.1739387457.480.480.jpg?c=2',
+    },
     'ET40 8" (B2B)': {
       dimensions: '220.0 x 139.0 x 17.3 mm', weight: '539 g',
       displaySize: '8.0 in', displayType: 'LCD, Gorilla Glass, Touch',
       refreshRate: '60', resolution: '1920 x 1200 pixels', ppi: '283',
       chipset: 'Snapdragon 660', gpu: 'Qualcomm Adreno 512',
       ram: '4 GB', storage: '32 GB',
+      sdCard: 'microSD (최대 128 GB)', waterRating: 'IP65',
       rearCamera: '13MP', frontCamera: '5MP',
       speakers: '스테레오', headphone: '있음',
       battery: '4420 mAh', charging: '18W',
       wlan: 'Wi-Fi 6', bluetooth: 'Bluetooth 5.0', nfc: '있음',
       usb: 'USB-C 2.0', sensors: 'Accelerometer, Gyroscope, Compass, Barometer',
-      imageUrl: 'https://www.zebra.com/content/dam/zebra_dam/global/photography/product/tablets/et40/et40-et45-tablet-product-image-1-large.jpg',
+      imageUrl: 'https://cdn11.bigcommerce.com/s-ka7ofex/products/5343/images/21952/Zebra_8_Inch_ET40_Enterprise_Rugged_Android_Tablet_Front__19824.1739387457.480.480.jpg?c=2',
     },
     'ET45 8" 5G (B2B)': {
       dimensions: '221.0 x 140.0 x 19.2 mm', weight: '589 g',
@@ -366,12 +406,13 @@ const FALLBACK_TABLET_SPECS_B2B = {
       refreshRate: '60', resolution: '1920 x 1200 pixels', ppi: '283',
       chipset: 'Snapdragon 6490', gpu: 'Qualcomm Adreno 643',
       ram: '6 GB', storage: '64 GB',
+      sdCard: 'microSD (최대 128 GB)', waterRating: 'IP65',
       rearCamera: '13MP', frontCamera: '5MP',
       speakers: '스테레오', headphone: '있음',
       battery: '4420 mAh', charging: '18W',
       wlan: 'Wi-Fi 6E', bluetooth: 'Bluetooth 5.2', nfc: '있음',
       usb: 'USB-C 2.0', sensors: 'Accelerometer, Gyroscope, Compass, Barometer',
-      imageUrl: 'https://www.zebra.com/content/dam/zebra_dam/global/photography/product/tablets/et40/et40-et45-tablet-product-image-1-large.jpg',
+      imageUrl: 'https://cdn11.bigcommerce.com/s-ka7ofex/products/4146/images/17491/ET40AB-001C1B0-NA__52638.1739388010.480.480.jpg?c=2',
     },
     'ET60 10" (B2B)': {
       dimensions: '268.0 x 183.0 x 18.5 mm', weight: '820 g',
@@ -379,12 +420,13 @@ const FALLBACK_TABLET_SPECS_B2B = {
       refreshRate: '60', resolution: '1920 x 1200 pixels', ppi: '224',
       chipset: 'Snapdragon 6490', gpu: 'Qualcomm Adreno 643',
       ram: '8 GB', storage: '128 GB',
+      sdCard: 'microSD (최대 128 GB)', waterRating: 'IP65',
       rearCamera: '13MP', frontCamera: '5MP',
       speakers: '스테레오', headphone: '있음',
       battery: '7200 mAh', charging: '18W',
       wlan: 'Wi-Fi 6E', bluetooth: 'Bluetooth 5.2', nfc: '있음',
       usb: 'USB-C 2.0', sensors: 'Accelerometer, Gyroscope, Compass, Barometer',
-      imageUrl: 'https://www.zebra.com/content/dam/zebra_dam/global/photography/product/tablets/et60/et60-et65-tablet-product-image-1-large.jpg',
+      imageUrl: 'https://cdn11.bigcommerce.com/s-ka7ofex/products/4784/images/19760/cq5dam.web.1280.1280_31__20276.1717682239.480.480.jpg?c=2',
     },
     'ET65 10" 5G (B2B)': {
       dimensions: '268.0 x 183.0 x 19.5 mm', weight: '870 g',
@@ -392,12 +434,13 @@ const FALLBACK_TABLET_SPECS_B2B = {
       refreshRate: '60', resolution: '1920 x 1200 pixels', ppi: '224',
       chipset: 'Snapdragon 6490', gpu: 'Qualcomm Adreno 643',
       ram: '8 GB', storage: '128 GB',
+      sdCard: 'microSD (최대 128 GB)', waterRating: 'IP65',
       rearCamera: '13MP', frontCamera: '5MP',
       speakers: '스테레오', headphone: '있음',
       battery: '7200 mAh', charging: '18W',
       wlan: 'Wi-Fi 6E', bluetooth: 'Bluetooth 5.2', nfc: '있음',
       usb: 'USB-C 2.0', sensors: 'Accelerometer, Gyroscope, Compass, Barometer',
-      imageUrl: 'https://www.zebra.com/content/dam/zebra_dam/global/photography/product/tablets/et60/et60-et65-tablet-product-image-1-large.jpg',
+      imageUrl: 'https://cdn11.bigcommerce.com/s-ka7ofex/products/4793/images/19802/cq5dam.web.1280.1280_43__43356.1718030337.480.480.jpg?c=2',
     },
   },
   'Panasonic': {
@@ -407,12 +450,13 @@ const FALLBACK_TABLET_SPECS_B2B = {
       refreshRate: '60', resolution: '1920 x 1200 pixels', ppi: '224',
       chipset: 'Snapdragon 660', gpu: 'Qualcomm Adreno 512',
       ram: '4 GB', storage: '32 GB',
+      sdCard: 'microSD (최대 512 GB)', waterRating: 'IP65',
       rearCamera: '13MP', frontCamera: '5MP',
       speakers: '스테레오', headphone: '있음',
       battery: '6200 mAh', charging: '30W',
       wlan: 'Wi-Fi 6', bluetooth: 'Bluetooth 5.0', nfc: '있음',
       usb: 'USB-A, USB-C', sensors: 'Accelerometer, Gyroscope, Compass, Barometer',
-      imageUrl: 'https://na.panasonic.com/sites/default/files/2022-01/toughbook-a3-front-closed.png',
+      imageUrl: 'https://mooringtech.com/cdn/shop/products/FZ-A3_front01_os_600x.jpg?v=1738680697',
     },
     'Toughbook FZ-B3 (B2B)': {
       dimensions: '202.0 x 130.0 x 18.0 mm', weight: '390 g',
@@ -420,12 +464,13 @@ const FALLBACK_TABLET_SPECS_B2B = {
       refreshRate: '60', resolution: '1200 x 800 pixels', ppi: '200',
       chipset: 'Snapdragon 660', gpu: 'Qualcomm Adreno 512',
       ram: '4 GB', storage: '32 GB',
+      sdCard: 'microSD (최대 512 GB)', waterRating: 'IP65',
       rearCamera: '8MP', frontCamera: '5MP',
       speakers: '모노', headphone: '있음',
       battery: '4200 mAh', charging: '18W',
       wlan: 'Wi-Fi 5', bluetooth: 'Bluetooth 5.0', nfc: '있음',
       usb: 'USB-C', sensors: 'Accelerometer, Gyroscope, Compass',
-      imageUrl: 'https://na.panasonic.com/sites/default/files/2023-09/toughbook-b3-front.png',
+      imageUrl: '',
     },
   },
 }
@@ -548,6 +593,7 @@ async function getSpecs(manufacturer, model) {
       specs.singleCore = String(perf.single)
       specs.multiCore  = String(perf.multi)
       if (perf.npu) specs.npu = perf.npu
+      if (perf.gpuScore) specs.gpuScore = String(perf.gpuScore)
       specs.benchmarkSource = 'Geekbench 6'
     }
     // Apple RAM 폴백: devicespecifications.com이 GB 대신 MHz만 기재하는 경우
@@ -738,6 +784,23 @@ function parseDeviceSpecs(html, specs) {
   // ── 센서 ─────────────────────────────────────────────────────
   const sensorsRow = tdGet('Sensors')
   if (sensorsRow) specs.sensors = sensorsRow
+
+  // ── SD Card ──────────────────────────────────────────────────
+  const sdRow = tdGet('Memory card slot') || tdGet('External storage') || tdGet('Memory card')
+  if (sdRow) {
+    if (/no|not supported|none/i.test(sdRow)) specs.sdCard = '없음'
+    else {
+      const sdM = sdRow.match(/microSD[^,<]*/i)
+      specs.sdCard = sdM ? sdM[0].trim() : '지원'
+    }
+  }
+
+  // ── 방수 등급 ────────────────────────────────────────────────
+  const ipRow = tdGet('Ingress protection') || tdGet('Water resistance') || tdGet('Protection')
+  if (ipRow) {
+    const ipM = ipRow.match(/IP\d+[A-Z]*/i)
+    specs.waterRating = ipM ? ipM[0] : ipRow.replace(/<[^>]+>/g, '').trim()
+  }
 
   // ── 배터리 사용 시간 ─────────────────────────────────────────
   const batteryLifeRow = tdGet('Video playback time') || tdGet('Battery life') || tdGet('Music playback time')

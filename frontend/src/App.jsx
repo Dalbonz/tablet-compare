@@ -55,6 +55,7 @@ const PC_CATEGORIES = [
 ]
 
 const EMPTY_ROW = () => ({ id: Date.now() + Math.random(), manufacturer: '', model: '', productList: [], specs: null, loading: false, imageUrl: null })
+const EMPTY_UNRELEASED_ROW = () => ({ id: Date.now() + Math.random(), manufacturer: '', model: '', productList: [], specs: {}, loading: false, imageUrl: null, isUnreleased: true })
 
 export default function App() {
   const [mode, setMode] = useState('tablet') // 'tablet' | 'pc'
@@ -133,6 +134,15 @@ export default function App() {
     })
   }
 
+  const addUnreleasedRow = () => {
+    if (rows.length >= 5) return
+    setRows(prev => [...prev, EMPTY_UNRELEASED_ROW()])
+  }
+
+  const handleSpecChange = (id, key, value) => {
+    setRows(prev => prev.map(r => r.id === id ? { ...r, specs: { ...r.specs, [key]: value } } : r))
+  }
+
   const setReference = (id) => {
     setRows(prev => {
       const idx = prev.findIndex(r => r.id === id)
@@ -150,6 +160,7 @@ export default function App() {
     specs: r.specs,
     loading: r.loading,
     imageUrl: r.imageUrl,
+    isUnreleased: r.isUnreleased || false,
   }))
 
   return (
@@ -197,13 +208,10 @@ export default function App() {
 
       <div className="main-layout">
         <header className="header">
-          <div>
-            <div className="app-brand">NC Product Compare</div>
-            <h1>{mode === 'pc' ? 'PC Compare' : 'Tablet Compare'}</h1>
-          </div>
+          <h1>NC Product Compare <span className="header-mode-tag">({mode === 'pc' ? 'PC' : 'Tablet'})</span></h1>
           <div className="header-meta">
-            <span className="header-version">Made by SW Park · Ver 1.0</span>
-            <a className="header-contact" href="mailto:sw01.park@samsung.com">sw01.park@samsung.com</a>
+            <span className="header-version">사용 문의 : <a className="header-contact" href="mailto:sw01.park@samsung.com">sw01.park@samsung.com</a></span>
+            <span className="header-version">Last Update : {__BUILD_DATE__}</span>
           </div>
         </header>
 
@@ -219,29 +227,32 @@ export default function App() {
                   }
                 </div>
 
-                <select
-                  className="selector-select"
-                  value={row.manufacturer}
-                  onChange={e => handleManufacturerChange(row.id, e.target.value)}
-                >
-                  <option value="">제조사 선택</option>
-                  {manufacturers.filter(m => !b2bMfr.includes(m)).map(m => <option key={m} value={m}>{m}</option>)}
-                  {b2bMfr.length > 0 && (
-                    <optgroup label="B2B / Enterprise">
-                      {b2bMfr.map(m => <option key={m} value={m}>{m}</option>)}
-                    </optgroup>
-                  )}
-                </select>
-
-                <select
-                  className="selector-select selector-select-product"
-                  value={row.model}
-                  onChange={e => handleModelChange(row.id, e.target.value)}
-                  disabled={!row.manufacturer}
-                >
-                  <option value="">제품 선택</option>
-                  {row.productList.map(p => <option key={p} value={p}>{p}</option>)}
-                </select>
+                {row.isUnreleased ? (
+                  <>
+                    <input className="selector-unreleased-input" placeholder="제조사" value={row.manufacturer}
+                      onChange={e => setRows(prev => prev.map(r => r.id === row.id ? { ...r, manufacturer: e.target.value } : r))} />
+                    <input className="selector-unreleased-input selector-select-product" placeholder="모델명 (미출시)" value={row.model}
+                      onChange={e => setRows(prev => prev.map(r => r.id === row.id ? { ...r, model: e.target.value } : r))} />
+                  </>
+                ) : (
+                  <>
+                    <select className="selector-select" value={row.manufacturer}
+                      onChange={e => handleManufacturerChange(row.id, e.target.value)}>
+                      <option value="">제조사 선택</option>
+                      {manufacturers.filter(m => !b2bMfr.includes(m)).map(m => <option key={m} value={m}>{m}</option>)}
+                      {b2bMfr.length > 0 && (
+                        <optgroup label="B2B / Enterprise">
+                          {b2bMfr.map(m => <option key={m} value={m}>{m}</option>)}
+                        </optgroup>
+                      )}
+                    </select>
+                    <select className="selector-select selector-select-product" value={row.model}
+                      onChange={e => handleModelChange(row.id, e.target.value)} disabled={!row.manufacturer}>
+                      <option value="">제품 선택</option>
+                      {row.productList.map(p => <option key={p} value={p}>{p}</option>)}
+                    </select>
+                  </>
+                )}
 
                 <div className="selector-move-cell">
                   <button className="selector-move-btn" onClick={() => moveRow(row.id, 'up')} disabled={idx === 0} title="위로">▲</button>
@@ -249,14 +260,17 @@ export default function App() {
                 </div>
 
                 {idx === rows.length - 1 && rows.length < 5 && (
-                  <button className="selector-add-btn" onClick={addRow} title="제품 추가">+</button>
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    <button className="selector-add-btn" onClick={addRow} title="제품 추가">+</button>
+                    <button className="btn-add-unreleased" onClick={addUnreleasedRow} title="미출시 모델 직접 입력">✏️ 미출시</button>
+                  </div>
                 )}
               </div>
             ))}
           </div>
 
           {/* ── 비교 표 ── */}
-          {products.some(p => p.specs) && (
+          {products.some(p => p.specs || p.isUnreleased) && (
             <CompareTable
               products={products}
               settings={settings}
@@ -264,6 +278,7 @@ export default function App() {
               onSetReference={products.length > 1 ? setReference : undefined}
               layoutMode={layoutMode}
               onToggleLayout={toggleLayout}
+              onSpecChange={handleSpecChange}
             />
           )}
 

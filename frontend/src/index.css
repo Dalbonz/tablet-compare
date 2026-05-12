@@ -57,11 +57,11 @@ body {
 
 .header { background: var(--white); border-bottom: 1px solid var(--gray-200); padding: 10px 24px; position: relative; text-align: center; }
 .header-meta { position: absolute; right: 24px; top: 50%; transform: translateY(-50%); text-align: right; display: flex; flex-direction: column; gap: 2px; }
-.header-version { font-size: 11px; color: var(--gray-400); font-weight: 500; }
-.header-contact { font-size: 11px; color: var(--gray-400); text-decoration: none; }
+.header-version { font-size: 10px; color: var(--gray-400); font-weight: 600; }
+.header-contact { font-size: 10px; color: var(--gray-400); text-decoration: none; font-weight: 600; }
 .header-contact:hover { color: var(--blue); text-decoration: underline; }
-.app-brand { font-size: 10px; font-weight: 600; color: var(--gray-400); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2px; }
-.header h1 { font-size: 18px; font-weight: 700; color: var(--gray-800); letter-spacing: -0.3px; }
+.header h1 { font-size: 22px; font-weight: 700; color: var(--gray-800); letter-spacing: -0.3px; }
+.header-mode-tag { font-size: 14px; font-weight: 500; color: var(--gray-500); }
 
 .content { padding: 20px 24px; flex: 1; }
 
@@ -270,6 +270,21 @@ body {
 .value-superior { background: #dbeafe; }
 .value-inferior { background: #fef2f2; }
 .web-indicator { font-size: 9px; color: var(--gray-400); font-style: italic; margin-left: 4px; }
+/* badge legend bar */
+.badge-legend { display: flex; align-items: center; gap: 4px; padding: 5px 10px; font-size: 11px; color: var(--gray-500); background: var(--gray-50); border-bottom: 1px solid var(--gray-200); flex-wrap: wrap; }
+.badge-legend-note { margin-left: 12px; color: var(--gray-400); font-style: italic; }
+.badge { display: inline-flex; align-items: center; justify-content: center; padding: 1px 5px; border-radius: 3px; font-size: 10px; font-weight: 700; }
+.badge-superior { background: #1d4ed8; color: #fff; }
+.badge-slightly-superior { background: #93c5fd; color: #1e3a8a; }
+.badge-equal { background: #e5e7eb; color: #374151; }
+.badge-slightly-inferior { background: #fca5a5; color: #7f1d1d; }
+.badge-inferior { background: #dc2626; color: #fff; }
+/* unreleased model */
+.unreleased-badge { display: inline-block; background: #dc2626; color: #fff; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px; margin-left: 4px; }
+.spec-input { width: 100%; font-size: 11px; border: 1px solid #e5e7eb; border-radius: 3px; padding: 2px 4px; background: #fffbf0; }
+.selector-unreleased-input { flex: 1; padding: 6px 8px; border: 1px solid var(--gray-300); border-radius: 6px; font-size: 12px; min-width: 0; }
+.btn-add-unreleased { padding: 5px 10px; border: 1px dashed #dc2626; border-radius: 6px; background: #fff5f5; color: #dc2626; font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.btn-add-unreleased:hover { background: #fee2e2; }
 
 /* Info bar - now beside selector */
 .info-bar { display: flex; gap: 10px; flex-direction: column; flex: 1; min-width: 0; }
