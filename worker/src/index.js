@@ -604,6 +604,11 @@ async function getSpecs(manufacturer, model) {
       if (appleKey) specs.ram = APPLE_RAM_FALLBACK[appleKey] + ' GB'
     }
   }
+  // 방수 등급 표시 정규화: 'IP68' → '○ (IP68)'
+  if (specs.waterRating) {
+    const ipNorm = specs.waterRating.match(/IP\d+[A-Z]*/i)
+    if (ipNorm && !specs.waterRating.startsWith('○')) specs.waterRating = '○ (' + ipNorm[0].toUpperCase() + ')'
+  }
   // 출시일/가격 하드코딩 DB로 덮어씀 (devicespecifications.com은 가격 미제공)
   const info = TABLET_LAUNCH_PRICE_DB[manufacturer]?.[model]
   if (info) {
@@ -787,6 +792,7 @@ function parseDeviceSpecs(html, specs) {
 
   // ── SD Card ──────────────────────────────────────────────────
   const sdRow = tdGet('Memory card slot') || tdGet('External storage') || tdGet('Memory card')
+    || tdGet('SD card') || tdGet('MicroSD') || tdGet('Memory slot')
   if (sdRow) {
     if (/no|not supported|none/i.test(sdRow)) specs.sdCard = '없음'
     else {
@@ -794,12 +800,23 @@ function parseDeviceSpecs(html, specs) {
       specs.sdCard = sdM ? sdM[0].trim() : '지원'
     }
   }
+  if (!specs.sdCard) {
+    const sdHtml = html.match(/microSD[^<]{0,40}/i)
+    if (sdHtml) specs.sdCard = sdHtml[0].replace(/<[^>]+>/g, '').trim().substring(0, 40)
+  }
 
   // ── 방수 등급 ────────────────────────────────────────────────
   const ipRow = tdGet('Ingress protection') || tdGet('Water resistance') || tdGet('Protection')
+    || tdGet('Protection class') || tdGet('IP rating') || tdGet('Waterproof')
   if (ipRow) {
     const ipM = ipRow.match(/IP\d+[A-Z]*/i)
-    specs.waterRating = ipM ? ipM[0] : ipRow.replace(/<[^>]+>/g, '').trim()
+    if (ipM) specs.waterRating = '○ (' + ipM[0].toUpperCase() + ')'
+    else if (/no|not|없음/i.test(ipRow)) specs.waterRating = '없음'
+    else specs.waterRating = ipRow.replace(/<[^>]+>/g, '').trim()
+  }
+  if (!specs.waterRating) {
+    const ipHtml = html.match(/\bIP\d+[A-Z]*\b/)
+    if (ipHtml) specs.waterRating = '○ (' + ipHtml[0].toUpperCase() + ')'
   }
 
   // ── 배터리 사용 시간 ─────────────────────────────────────────
