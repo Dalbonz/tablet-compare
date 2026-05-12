@@ -260,13 +260,15 @@ export default function App() {
                 </div>
 
                 {idx === rows.length - 1 && rows.length < 5 && (
-                  <div style={{ display: 'flex', gap: 4 }}>
-                    <button className="selector-add-btn" onClick={addRow} title="제품 추가">+</button>
-                    <button className="btn-add-unreleased" onClick={addUnreleasedRow} title="미출시 모델 직접 입력">✏️ 미출시</button>
-                  </div>
+                  <button className="selector-add-btn" onClick={addRow} title="제품 추가">+</button>
                 )}
               </div>
             ))}
+            {rows.length < 5 && (
+              <div style={{ paddingTop: 6, borderTop: '1px dashed #e5e7eb' }}>
+                <button className="btn-add-unreleased" onClick={addUnreleasedRow}>✏️ 미출시 모델 추가</button>
+              </div>
+            )}
           </div>
 
           {/* ── 비교 표 ── */}
@@ -290,8 +292,9 @@ export default function App() {
                 <li>좌측 아이콘으로 태블릿 / PC 비교 모드를 선택합니다.</li>
                 <li>제조사를 선택하면 해당 브랜드의 제품 목록이 표시됩니다.</li>
                 <li>제품을 선택하면 스펙이 자동으로 채워집니다.</li>
-                <li>최대 5개 제품까지 비교 가능. 첫 번째 행이 기준이며, ▲▼ 버튼으로 순서 변경 또는 비교 제품 이름 클릭으로 기준 설정.</li>
-                <li>✏️ 미출시 버튼으로 미출시 모델을 직접 추가하고, 표에서 각 스펙을 직접 입력할 수 있습니다.</li>
+                <li>최대 5개 제품까지 비교 가능합니다.</li>
+                <li>첫 번째 행이 기준이며, ▲▼ 버튼으로 순서 변경 또는 제품명 클릭으로 기준 설정합니다.</li>
+                <li>✏️ 미출시 모델 추가 버튼으로 미출시 모델을 직접 추가하고, 표에서 각 스펙을 입력할 수 있습니다.</li>
               </ol>
             </div>
             <div className="info-card">

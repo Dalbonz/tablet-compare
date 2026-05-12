@@ -786,9 +786,19 @@ function parseDeviceSpecs(html, specs) {
   else if (/[Ss]ingle\s*speaker/i.test(speakerSrc) || html.match(/[Ss]ingle\s*speaker/i))
     specs.speakers = '모노'
 
-  // ── 센서 ─────────────────────────────────────────────────────
-  const sensorsRow = tdGet('Sensors')
-  if (sensorsRow) specs.sensors = sensorsRow
+  // ── 센서 (br/p 태그 → 쉼표 구분) ────────────────────────────
+  const sensorsRe = /<td[^>]*>Sensors(?:<p>[^<]*<\/p>)?<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>/i
+  const sensorsMatch = html.match(sensorsRe)
+  if (sensorsMatch) {
+    specs.sensors = sensorsMatch[1]
+      .replace(/<br\s*\/?>/gi, ', ')
+      .replace(/<\/p>\s*<p[^>]*>/gi, ', ')
+      .replace(/<p[^>]*>|<\/p>/gi, '')
+      .replace(/<[^>]+>/g, '')
+      .replace(/\s*,\s*/g, ', ')
+      .replace(/,\s*,/g, ',')
+      .trim()
+  }
 
   // ── SD Card ──────────────────────────────────────────────────
   const sdRow = tdGet('Memory card slot') || tdGet('External storage') || tdGet('Memory card')
